@@ -9,6 +9,7 @@ type DataFileName = DataFileName of fileFormat: FileFormat * rawDate : string
 type Error =
     | FileFormatNotFound of availableFormats: Set<FileFormat> * givenFormat : FileFormat
     | DataFileNameFormatError of fileName: string
+    | UnexpectedFormatLine of string
 
 type JsonDataType = JString | JBool | JInt
 
@@ -29,3 +30,19 @@ let parseDataFileName s =
     if regexMatch.Success
     then Ok <| DataFileName (FileFormat regexMatch.Groups.[1].Value, regexMatch.Groups.[2].Value)
     else Error <| DataFileNameFormatError s
+    
+let parseFormatLine (regex: Regex) line =
+    let parseJsonDataType = function
+        | "TEXT" -> Ok JsonDataType.JString
+        | "BOOLEAN" -> Ok JsonDataType.JBool
+        | "INTEGER" -> Ok JsonDataType.JInt
+        | _ -> Error <| UnexpectedFormatLine line
+    
+    let regexMatch = regex.Match line
+    if regexMatch.Success
+    then
+        let jsonDataType = parseJsonDataType regexMatch.Groups.[3].Value
+        match jsonDataType with
+        | Ok x -> Ok <| FormatLine (regexMatch.Groups.[1].Value, System.Int32.Parse(regexMatch.Groups.[2].Value), x)
+        | Error e -> Error e
+    else Error <| UnexpectedFormatLine line

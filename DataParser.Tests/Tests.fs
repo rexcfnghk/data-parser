@@ -1,8 +1,10 @@
-module DataParser.Tests
+module DataParser.Tests.Main
 
 open System
 open System.Globalization
+open System.Text.RegularExpressions
 open DataParser.Console.Core
+open DataParser.Tests.Helpers
 open Hedgehog
 open Hedgehog.Xunit
 open Swensen.Unquote
@@ -61,3 +63,22 @@ let ``parseDataFileName should return ok with expected fields when file conform 
     let expected = Ok <| DataFileName (fileFormat, rawDate)
     
     parseDataFileName fileName =! expected
+    
+[<Property>]
+let ``parseFormatLine returns error when line does not conform to expected format`` (s: string) =
+    let expected = Error <| UnexpectedFormatLine s
+    let regex = Regex("^\n$")
+    
+    parseFormatLine regex s =! expected
+    
+[<Xunit.Theory>]
+[<Xunit.InlineData("name", 10, "TEXT")>]
+[<Xunit.InlineData("valid", 1, "BOOLEAN")>]
+[<Xunit.InlineData("count", 3, "INTEGER")>]
+let ``parseFormatLine returns expected FormatLine when line conforms to regex`` (columnName, width, dataType) =
+    let jsonType = parseJsonType dataType
+    let expected = Ok <| FormatLine (columnName, width, jsonType)
+    let regex = Regex("^(.+),(\d+),(.+)$")
+    let line = $"{columnName},{width},{dataType}"
+    
+    parseFormatLine regex line =! expected
