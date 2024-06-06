@@ -1,0 +1,6 @@
+﻿services:
+  dataparser.console:
+    image: dataparser.console
+    build:
+      context: .
+      dockerfile: DataParser.Console/Dockerfile
