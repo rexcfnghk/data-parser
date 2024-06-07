@@ -83,3 +83,27 @@ let ``parseFormatLine returns expected FormatLine when line conforms to regex`` 
     let regex = Regex("^(.+),(\d+),(.+)$")
     
     parseFormatLine regex line =! expected
+    
+[<Xunit.Theory>]
+[<Xunit.InlineData("\"column name\",width,datatype", "^(.+),(\d+),(.+)$")>]
+[<Xunit.InlineData("width,\"column name\",datatype", "^(\d+),(.+),(.+)$")>]
+[<Xunit.InlineData("datatype,width,\"column name\"", "^(.+),(\d+),(.+)$")>] 
+let ``parseFormatLineHeader returns expected regex when line conforms to regex`` (header, expectedRegex) =
+    let expected = Regex(expectedRegex)
+
+    $"{parseFormatLineHeader header}" =! $"{expected}"
+    
+[<Xunit.Theory>]
+[<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\n")>]
+[<Xunit.InlineData("width,\"column name\",datatype\n10,name,TEXT\n")>]
+let ``parseFormatFile returns expected FormatLines when there is one line`` formatFile =
+    let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString) ]
+    
+    parseFormatFile formatFile =! expected
+    
+[<Xunit.Theory>]
+[<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\nvalid,1,BOOLEAN\n")>]
+let ``parseFormatFile returns expected FormatLines when there is two lines`` formatFile =
+    let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString); FormatLine ("valid", 1, JsonDataType.JBool) ]
+    
+    parseFormatFile formatFile =! expected
