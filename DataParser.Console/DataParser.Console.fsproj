@@ -9,6 +9,7 @@
     <ItemGroup>
         <Compile Include="Core.fs" />
         <Compile Include="FormatFiles.fs" />
+        <Compile Include="DataFiles.fs" />
         <Compile Include="FileRead.fs" />
         <Compile Include="Program.fs"/>
     </ItemGroup>

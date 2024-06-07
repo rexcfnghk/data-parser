@@ -1,10 +1,6 @@
 ﻿module DataParser.Console.Core
 
-open System.Text.RegularExpressions
-
 type FileFormat = FileFormat of string
-
-type DataFileName = DataFileName of fileFormat: FileFormat * rawDate : string
 
 type Error =
     | FileFormatNotFound of availableFormats: Set<FileFormat> * givenFormat : FileFormat
@@ -23,21 +19,4 @@ let rec traverse f list =
     | [] -> Ok []
     | x :: xs -> Ok cons <*> (f x) <*> (traverse f xs)
     
-let inline sequence x  = traverse id x
-
-let lookupFileFormat availableFormats given =
-    if Set.contains given availableFormats
-    then Ok given
-    else Error <| FileFormatNotFound (availableFormats, given)
-    
-let collectFileFormats = Set.ofList
-
-let dataFileNameRegex =
-    Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
-
-let parseDataFileName s =
-    let regexMatch = dataFileNameRegex.Match s
-    if regexMatch.Success
-    then Ok <| DataFileName (FileFormat regexMatch.Groups.[1].Value, regexMatch.Groups.[2].Value)
-    else Error <| DataFileNameFormatError s
-    
+let inline sequence x  = traverse id x    

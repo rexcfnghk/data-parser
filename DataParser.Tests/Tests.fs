@@ -4,6 +4,7 @@ open System
 open System.Globalization
 open System.Text.RegularExpressions
 open DataParser.Console.Core
+open DataParser.Console.DataFiles
 open DataParser.Console.FormatFiles
 open DataParser.Tests.Helpers
 open Hedgehog
