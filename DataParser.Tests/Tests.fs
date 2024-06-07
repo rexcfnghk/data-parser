@@ -103,6 +103,7 @@ let ``parseFormatFile returns expected FormatLines when there is one line`` form
     
 [<Xunit.Theory>]
 [<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\nvalid,1,BOOLEAN\n")>]
+[<Xunit.InlineData("width,\"column name\",datatype\n10,name,TEXT\n1,valid,BOOLEAN\n")>]
 let ``parseFormatFile returns expected FormatLines when there is two lines`` formatFile =
     let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString); FormatLine ("valid", 1, JsonDataType.JBool) ]
     
