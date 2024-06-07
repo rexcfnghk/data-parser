@@ -20,22 +20,22 @@ let parseFormatLine (regex: Regex) line =
     let regexMatch = regex.Match line
     if regexMatch.Success
     then
-        let jsonDataType = parseJsonDataType line regexMatch.Groups.["type"].Value
+        let jsonDataType = parseJsonDataType line regexMatch.Groups["type"].Value
         match jsonDataType with
-        | Ok x -> Ok <| FormatLine (regexMatch.Groups.["name"].Value, Int32.Parse(regexMatch.Groups.["width"].Value), x)
+        | Ok x -> Ok <| FormatLine (regexMatch.Groups["name"].Value, Int32.Parse(regexMatch.Groups["width"].Value), x)
         | Error e -> Error e
     else Error <| UnexpectedFormatLine line
 
 let parseFormatLineHeader (line: string) =
     let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
     let lines = line.Split(',')
-    let regexes = Array.map (fun x -> headerRegexLookup.[x]) lines
+    let regexes = Array.map (fun x -> headerRegexLookup[x]) lines
     let regex = String.Join(',', regexes)
     Regex $"^{regex}$"
     
 let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
-    let formatRegex = parseFormatLineHeader lines.[0]
+    let formatRegex = parseFormatLineHeader lines[0]
     lines
     |> Array.skip 1
     |> Array.toList
