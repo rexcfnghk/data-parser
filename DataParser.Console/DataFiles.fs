@@ -36,16 +36,15 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
         | JInt -> match System.Int32.TryParse (s, CultureInfo.InvariantCulture) with true, i -> Ok i | false, _ -> Error (UnparsableValue s)
         | JString -> Ok <| let result = Encoding.UTF8.GetString s in result.Trim()
         
-    let folder (stream : MemoryStream, lineMaxCount, map) (FormatLine (columnName, width, dataType)) =
+    let folder (stream : MemoryStream, map) (FormatLine (columnName, width, dataType)) =
         let byteArray = Array.create width 0uy
         stream.ReadExactly(byteArray, 0, width)
         let result = parseDataType dataType byteArray
-        stream, lineMaxCount, Map.add columnName result map
+        stream, Map.add columnName result map
     
     let bytes : byte array = Encoding.UTF8.GetBytes dataFileLine
     use s = new MemoryStream(bytes)
-    let lineMaxCount = List.sumBy (fun (FormatLine (_, width, _)) -> width) formatLines
-    let _, _, map = List.fold folder (s, lineMaxCount, Map.empty) formatLines
+    let _, map = List.fold folder (s, Map.empty) formatLines
     
     map
     |> Map.filter (fun _ -> Result.isOk)
