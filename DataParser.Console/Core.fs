@@ -11,10 +11,6 @@ type Error =
     | DataFileNameFormatError of fileName: string
     | UnexpectedFormatLine of string
 
-type JsonDataType = JString | JBool | JInt
-
-type FormatLine = FormatLine of columnName: string * width: int * dataType : JsonDataType
-
 let lookupFileFormat availableFormats given =
     if Set.contains given availableFormats
     then Ok given
@@ -31,18 +27,3 @@ let parseDataFileName s =
     then Ok <| DataFileName (FileFormat regexMatch.Groups.[1].Value, regexMatch.Groups.[2].Value)
     else Error <| DataFileNameFormatError s
     
-let parseFormatLine (regex: Regex) line =
-    let parseJsonDataType = function
-        | "TEXT" -> Ok JsonDataType.JString
-        | "BOOLEAN" -> Ok JsonDataType.JBool
-        | "INTEGER" -> Ok JsonDataType.JInt
-        | _ -> Error <| UnexpectedFormatLine line
-    
-    let regexMatch = regex.Match line
-    if regexMatch.Success
-    then
-        let jsonDataType = parseJsonDataType regexMatch.Groups.[3].Value
-        match jsonDataType with
-        | Ok x -> Ok <| FormatLine (regexMatch.Groups.[1].Value, System.Int32.Parse(regexMatch.Groups.[2].Value), x)
-        | Error e -> Error e
-    else Error <| UnexpectedFormatLine line

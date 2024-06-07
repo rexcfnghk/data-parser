@@ -4,6 +4,7 @@ open System
 open System.Globalization
 open System.Text.RegularExpressions
 open DataParser.Console.Core
+open DataParser.Console.FormatFiles
 open DataParser.Tests.Helpers
 open Hedgehog
 open Hedgehog.Xunit
@@ -76,9 +77,9 @@ let ``parseFormatLine returns error when line does not conform to expected forma
 [<Xunit.InlineData("valid", 1, "BOOLEAN")>]
 [<Xunit.InlineData("count", 3, "INTEGER")>]
 let ``parseFormatLine returns expected FormatLine when line conforms to regex`` (columnName, width, dataType) =
-    let jsonType = parseJsonType dataType
+    let line = $"{columnName},{width},{dataType}"
+    let jsonType = forceParseJsonType line dataType
     let expected = Ok <| FormatLine (columnName, width, jsonType)
     let regex = Regex("^(.+),(\d+),(.+)$")
-    let line = $"{columnName},{width},{dataType}"
     
     parseFormatLine regex line =! expected
