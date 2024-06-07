@@ -1,2 +1,6 @@
 ﻿// For more information see https://aka.ms/fsharp-console-apps
-printfn "Hello from F#"
+open DataParser.Console.FileRead
+
+let specs = readAllSpecFiles "./specs"
+
+printfn $"%A{specs}"

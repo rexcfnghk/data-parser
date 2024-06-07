@@ -8,6 +8,8 @@ type JsonDataType = JString | JBool | JInt
 
 type FormatLine = FormatLine of columnName: string * width: int * dataType : JsonDataType
 
+type FormatName = FormatName of string
+
 let parseJsonDataType line = function
     | "TEXT" -> Ok JsonDataType.JString
     | "BOOLEAN" -> Ok JsonDataType.JBool
@@ -31,18 +33,6 @@ let parseFormatLineHeader (line: string) =
     let regex = String.Join(',', regexes)
     Regex $"^{regex}$"
     
-let (<*>) f x =
-    match f, x with
-    | Ok f, Ok x -> Ok (f x)
-    | Error e, _ -> Error e
-    | _, Error e -> Error e
-    
-let rec traverse f list =
-    let cons head tail = head :: tail
-    match list with
-    | [] -> Ok []
-    | x :: xs -> Ok cons <*> (f x) <*> (traverse f xs)
-    
 let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
     let formatRegex = parseFormatLineHeader lines.[0]
@@ -50,4 +40,5 @@ let parseFormatFile (file: string) =
     |> Array.skip 1
     |> Array.toList
     |> List.map (parseFormatLine formatRegex)
-    |> traverse id
+    |> sequence
+    
