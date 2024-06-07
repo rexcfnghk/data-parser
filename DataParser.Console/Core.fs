@@ -6,6 +6,7 @@ type Error =
     | FileFormatNotFound of availableFormats: Set<FileFormat> * givenFormat : FileFormat
     | DataFileNameFormatError of fileName: string
     | UnexpectedFormatLine of string
+    | UnparsableValue of obj
     
 let (<*>) f x =
     match f, x with

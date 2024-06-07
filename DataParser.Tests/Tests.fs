@@ -1,6 +1,7 @@
 module DataParser.Tests.Main
 
 open System
+open System.Collections.Generic
 open System.Globalization
 open System.Text.RegularExpressions
 open DataParser.Console.Core
@@ -109,3 +110,27 @@ let ``parseFormatFile returns expected FormatLines when there is two lines`` for
     let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString); FormatLine ("valid", 1, JsonDataType.JBool) ]
     
     parseFormatFile formatFile =! expected
+    
+[<Xunit.Fact>]
+let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns an expected map`` () =
+    let dataFileLine = "Diabetes  1 1\n"
+    let formatLines = [
+        FormatLine ("name", 10, JsonDataType.JString)
+        FormatLine ("valid", 1, JsonDataType.JBool)
+        FormatLine("count", 3, JsonDataType.JInt)
+    ]
+    let expected : Map<string, obj> = Map.ofList [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
+    
+    parseDataFileLine formatLines dataFileLine =! expected
+    
+[<Xunit.Fact>]
+let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an expected map`` () =
+    let dataFileLine = "Asthma    0-14\n"
+    let formatLines = [
+        FormatLine ("name", 10, JsonDataType.JString)
+        FormatLine ("valid", 1, JsonDataType.JBool)
+        FormatLine("count", 3, JsonDataType.JInt)
+    ]
+    let expected : Map<string, obj> = Map.ofList [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
+    
+    parseDataFileLine formatLines dataFileLine =! expected

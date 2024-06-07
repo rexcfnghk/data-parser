@@ -1,6 +1,5 @@
 ﻿module DataParser.Console.FileRead
 
-open DataParser.Console.Core
 open DataParser.Console.FormatFiles
 open System.IO
 
