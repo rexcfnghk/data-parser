@@ -16,7 +16,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="specs\fileformat.csv">
+      <Content Include="specs\**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="data\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

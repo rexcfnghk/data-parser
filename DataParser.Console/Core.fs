@@ -20,4 +20,6 @@ let rec traverse f list =
     | [] -> Ok []
     | x :: xs -> Ok cons <*> (f x) <*> (traverse f xs)
     
-let inline sequence x  = traverse id x    
+let inline sequence x  = traverse id x
+
+let flip f x y = f y x
