@@ -14,10 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-      <Content Include="Dockerfile" />
       <Content Include="specs\fileformat.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
