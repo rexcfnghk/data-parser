@@ -18,14 +18,14 @@ let parseFormatLine (regex: Regex) line =
     let regexMatch = regex.Match line
     if regexMatch.Success
     then
-        let jsonDataType = parseJsonDataType line regexMatch.Groups.[3].Value
+        let jsonDataType = parseJsonDataType line regexMatch.Groups.["type"].Value
         match jsonDataType with
-        | Ok x -> Ok <| FormatLine (regexMatch.Groups.[1].Value, Int32.Parse(regexMatch.Groups.[2].Value), x)
+        | Ok x -> Ok <| FormatLine (regexMatch.Groups.["name"].Value, Int32.Parse(regexMatch.Groups.["width"].Value), x)
         | Error e -> Error e
     else Error <| UnexpectedFormatLine line
 
 let parseFormatLineHeader (line: string) =
-    let headerRegexLookup = dict [ ("\"column name\"", "(.+)"); ("width", "(\d+)"); ("datatype", "(.+)") ]
+    let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
     let lines = line.Split(',')
     let regexes = Array.map (fun x -> headerRegexLookup.[x]) lines
     let regex = String.Join(',', regexes)

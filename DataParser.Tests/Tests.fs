@@ -80,14 +80,14 @@ let ``parseFormatLine returns expected FormatLine when line conforms to regex`` 
     let line = $"{columnName},{width},{dataType}"
     let jsonType = forceParseJsonType line dataType
     let expected = Ok <| FormatLine (columnName, width, jsonType)
-    let regex = Regex("^(.+),(\d+),(.+)$")
+    let regex = Regex("^(?<name>.+),(?<width>\d+),(?<type>.+)$")
     
     parseFormatLine regex line =! expected
     
 [<Xunit.Theory>]
-[<Xunit.InlineData("\"column name\",width,datatype", "^(.+),(\d+),(.+)$")>]
-[<Xunit.InlineData("width,\"column name\",datatype", "^(\d+),(.+),(.+)$")>]
-[<Xunit.InlineData("datatype,width,\"column name\"", "^(.+),(\d+),(.+)$")>] 
+[<Xunit.InlineData("\"column name\",width,datatype", "^(?<name>.+),(?<width>\d+),(?<type>.+)$")>]
+[<Xunit.InlineData("width,\"column name\",datatype", "^(?<width>\d+),(?<name>.+),(?<type>.+)$")>]
+[<Xunit.InlineData("datatype,width,\"column name\"", "^(?<type>.+),(?<width>\d+),(?<name>.+)$")>] 
 let ``parseFormatLineHeader returns expected regex when line conforms to regex`` (header, expectedRegex) =
     let expected = Regex(expectedRegex)
 
