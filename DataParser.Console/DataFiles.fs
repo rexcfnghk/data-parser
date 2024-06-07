@@ -11,14 +11,14 @@ open DataParser.Console.FormatFiles
 let [<Literal>] trueByteLiteral = 49uy
 let [<Literal>] falseByteLiteral = 48uy
 
-type DataFileName = DataFileName of fileFormat: FileFormat * rawDate : string
+type DataFileName = DataFileName of fileFormat: FormatName * rawDate : string
 
-let lookupFileFormat availableFormats given =
+let lookupFormatName availableFormats given =
     if Set.contains given availableFormats
     then Ok given
     else Error <| FileFormatNotFound (availableFormats, given)
     
-let collectFileFormats = Set.ofList
+let collectFormatNames = Set.ofList
 
 let dataFileNameRegex =
     Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
@@ -26,7 +26,7 @@ let dataFileNameRegex =
 let parseDataFileName s =
     let regexMatch = dataFileNameRegex.Match s
     if regexMatch.Success
-    then Ok <| DataFileName (FileFormat regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
+    then Ok <| DataFileName (FormatName regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
     else Error <| DataFileNameFormatError s
     
 let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Map<string, obj> =

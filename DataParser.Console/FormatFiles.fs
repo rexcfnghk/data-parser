@@ -8,8 +8,6 @@ type JsonDataType = JString | JBool | JInt
 
 type FormatLine = FormatLine of columnName: string * width: int * dataType : JsonDataType
 
-type FormatName = FormatName of string
-
 let parseJsonDataType line = function
     | "TEXT" -> Ok JsonDataType.JString
     | "BOOLEAN" -> Ok JsonDataType.JBool

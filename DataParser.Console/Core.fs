@@ -1,9 +1,9 @@
 ﻿module DataParser.Console.Core
 
-type FileFormat = FileFormat of string
+type FormatName = FormatName of string
 
 type Error =
-    | FileFormatNotFound of availableFormats: Set<FileFormat> * givenFormat : FileFormat
+    | FileFormatNotFound of availableFormats: Set<FormatName> * givenFormat : FormatName
     | DataFileNameFormatError of fileName: string
     | UnexpectedFormatLine of string
     | UnparsableValue of obj
