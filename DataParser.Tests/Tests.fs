@@ -134,3 +134,15 @@ let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an 
     let expected : Map<string, obj> = Map.ofList [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
+    
+[<Xunit.Fact>]
+let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an expected map`` () =
+    let dataFileLine = "Stroke    1122\n"
+    let formatLines = [
+        FormatLine ("name", 10, JsonDataType.JString)
+        FormatLine ("valid", 1, JsonDataType.JBool)
+        FormatLine("count", 3, JsonDataType.JInt)
+    ]
+    let expected : Map<string, obj> = Map.ofList [ ("name", "Stroke"); ("valid", true); ("count", 122) ]
+    
+    parseDataFileLine formatLines dataFileLine =! expected
