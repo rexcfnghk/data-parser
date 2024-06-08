@@ -146,3 +146,9 @@ let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an 
     let expected : Map<string, obj> = Map.ofList [ ("name", "Stroke"); ("valid", true); ("count", 122) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
+
+[<Xunit.Fact>]
+let ``parseFormatFile should return error when file is an empty string`` () =
+    let file = ""
+    
+    parseFormatFile file =! Error (UnparsableFormatFile file)

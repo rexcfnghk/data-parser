@@ -33,10 +33,13 @@ let parseFormatLineHeader (line: string) =
     
 let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
-    let formatRegex = parseFormatLineHeader lines[0]
-    lines
-    |> Array.skip 1
-    |> Array.toList
-    |> List.map (parseFormatLine formatRegex)
-    |> sequenceList
-    
+    try
+        let formatRegex = parseFormatLineHeader lines[0]
+        lines
+        |> Array.skip 1
+        |> Array.toList
+        |> List.map (parseFormatLine formatRegex)
+        |> sequenceList
+    with
+        | :? IndexOutOfRangeException -> Error (UnparsableFormatFile file)
+        

@@ -7,6 +7,7 @@ type Error =
     | DataFileNameFormatError of fileName: string
     | UnexpectedFormatLine of string
     | UnparsableValue of obj
+    | UnparsableFormatFile of fileContent: string
     
 let (<*>) f x =
     match f, x with
