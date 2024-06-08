@@ -12,7 +12,7 @@ let readAllSpecFiles folderPath =
     |> Map.ofArray
     |> sequenceMap
     
-let readDataFiles (fileFormatLookup: Map<FormatName, FormatLine list>) folderPath =
+let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
     let getDataFileFormat output (filePath: string) =
         let fileName = Path.GetFileNameWithoutExtension filePath
         let fileFormatSet = fileFormatLookup.Keys |> Set.ofSeq

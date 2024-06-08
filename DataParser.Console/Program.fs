@@ -2,9 +2,12 @@
 open System
 open DataParser.Console.FileRead
 open DataParser.Console.FileWrite
-open DataParser.Console.Core
 
-let specs = readAllSpecFiles "./specs"
+let [<Literal>] specPath = "./specs"
+let [<Literal>] dataPath = "./data"
+let [<Literal>] outputPath = "./output"
+
+let specs = readAllSpecFiles specPath
 
 printfn $"%A{specs}"
 
@@ -12,8 +15,8 @@ match specs with
 | Error e -> raise (invalidOp $"{e}")
 | Ok specs ->
     specs
-    |> flip readDataFiles "./data"
-    |> Array.iter (function Error e -> raise (invalidOp $"{e}") | Ok result -> writeOutputFile "./output" result)
+    |> readDataFiles dataPath
+    |> Array.iter (function Error e -> raise (invalidOp $"{e}") | Ok result -> writeOutputFile outputPath result)
     
 printfn "Output complete. Press Enter to exit."
 ignore <| Console.ReadLine()
