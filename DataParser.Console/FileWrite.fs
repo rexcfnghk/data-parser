@@ -19,5 +19,3 @@ let writeOutputFile folderPath (fileMap : Map<DataFileName,Map<string,obj> seq>)
     fileMap
     |> Map.iter serializeAndWrite
     
-    
-

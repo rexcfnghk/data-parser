@@ -22,11 +22,9 @@ let readDataFiles (fileFormatLookup: Map<FormatName, FormatLine list>) folderPat
             let formatLines = fileFormatLookup[formatName]
             return
                 File.ReadLines filePath
-                // TODO: Fix
                 |> Seq.map (parseDataFileLine formatLines)
                 |> flip (Map.add dataFileName) output
         }
 
     Directory.GetFiles(folderPath, "*.txt")
     |> Array.map (getDataFileFormat Map.empty)
-
