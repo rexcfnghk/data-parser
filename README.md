@@ -11,7 +11,9 @@ The whole program is written in F#.
 ## How to run
 
 1. `cd ./DataParser.Console/`
-2. `dotnet run`
+2. Feed your data files under the `/data` folder and your spec files under the `/specs` folder
+3. `dotnet run -c Release`
+4. The resulting output will be contained under the `/output` folder
 
 ## Tests
 
@@ -23,3 +25,8 @@ Unit tests can be found under `./DataParser.Tests`, these can be run with:
 ## Docker image
 
 A docker image can be built by using the `Dockerfile`/`docker-compose.yml` file provided in the root directory.
+
+## Limitations
+
+- The program currently ignores unparsable rows in a data file
+- The program will also halt when any spec file cannot be parsed
