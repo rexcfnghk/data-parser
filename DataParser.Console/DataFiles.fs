@@ -46,6 +46,7 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
     use s = new MemoryStream(bytes)
     let _, map = List.fold folder (s, Map.empty) formatLines
     
+    // TODO: Make the structure a proper functor
     map
     |> Map.filter (fun _ -> Result.isOk)
     |> Map.map (fun _ (Ok v) -> v)

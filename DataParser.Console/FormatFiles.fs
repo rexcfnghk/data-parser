@@ -38,5 +38,5 @@ let parseFormatFile (file: string) =
     |> Array.skip 1
     |> Array.toList
     |> List.map (parseFormatLine formatRegex)
-    |> sequence
+    |> sequenceList
     

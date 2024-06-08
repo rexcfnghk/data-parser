@@ -14,12 +14,26 @@ let (<*>) f x =
     | Error e, _ -> Error e
     | _, Error e -> Error e
     
-let rec traverse f list =
+let (<!>) f x = Result.map f x
+    
+let rec traverseList f list =
     let cons head tail = head :: tail
     match list with
     | [] -> Ok []
-    | x :: xs -> Ok cons <*> (f x) <*> (traverse f xs)
+    | x :: xs -> cons <!> (f x) <*> (traverseList f xs)
     
-let inline sequence x  = traverse id x
+let inline sequenceList x  = traverseList id x
+
+let traverseMap f map =
+    let folder s k v = Map.add <!> Ok k <*> f v <*> s
+    Map.fold folder (Ok Map.empty) map
+    
+let inline sequenceMap x = traverseMap id x
+
+let rec traverseSeq f seq =
+    let folder s x = Seq.append <!> f x <*> s 
+    Seq.fold folder (Ok Seq.empty) seq
+    
+let inline sequenceSeq x = traverseSeq id x
 
 let flip f x y = f y x
