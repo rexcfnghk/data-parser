@@ -17,14 +17,19 @@ let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>
         let fileName = Path.GetFileNameWithoutExtension filePath
         let fileFormatSet = fileFormatLookup.Keys |> Set.ofSeq
         result {
-            let! (dataFileName as DataFileName (fileFormat, _)) = parseDataFileName fileName
+            let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
             let! formatName = lookupFormatName fileFormatSet fileFormat
             let formatLines = fileFormatLookup[formatName]
-            return
+            let parsed =
                 File.ReadLines filePath
                 |> Seq.map (parseDataFileLine formatLines)
-                |> flip (Map.add dataFileName) output
+                
+            return! Map.add <!> Ok dataFileName <*> Ok parsed <*> output    
         }
+        
+    let mapJsonMapToDataFileParseResult (map: Map<DataFileName, JsonObject seq>) =
+        Map.fold (fun s k v -> Seq.append s (Seq.singleton { dataFileName = k; jsonElements = v })) Seq.empty map
 
     Directory.GetFiles(folderPath, "*.txt")
-    |> Array.map (getDataFileFormat Map.empty)
+    |> Array.fold getDataFileFormat (Ok Map.empty)
+    |> Result.map mapJsonMapToDataFileParseResult

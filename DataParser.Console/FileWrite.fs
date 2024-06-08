@@ -5,9 +5,9 @@ open System.IO
 open DataParser.Console.DataFiles
 open DataParser.Console.Core
 
-let writeOutputFile folderPath (fileMap : Map<DataFileName,Map<string,obj> seq>) =
-    let serializeAndWrite (DataFileName (FormatName format, rawDate)) (jsonElements: Map<string, obj> seq) =
-        let serializeElement (stream: FileStream) (jsonObject : Map<string, obj>) =
+let writeOutputFile folderPath (fileMap : DataFileParseResult seq) =
+    let serializeAndWrite (DataFileName (FormatName format, rawDate)) (jsonElements: JsonObject seq) =
+        let serializeElement (stream: FileStream) (jsonObject : JsonObject) =
             let serialized = JsonSerializer.Serialize jsonObject
             let bytes = System.Text.Encoding.UTF8.GetBytes $"{serialized}\n"
             stream.Write bytes
@@ -17,5 +17,5 @@ let writeOutputFile folderPath (fileMap : Map<DataFileName,Map<string,obj> seq>)
         Seq.iter (serializeElement fs) jsonElements
     
     fileMap
-    |> Map.iter serializeAndWrite
+    |> Seq.iter (DataFileParseResult.iter serializeAndWrite)
     

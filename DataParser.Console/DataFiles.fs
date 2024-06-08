@@ -2,16 +2,17 @@
 
 open System.Globalization
 open System.IO
-open System.Linq
 open System.Text
-open DataParser.Console.Core
 open System.Text.RegularExpressions
+open DataParser.Console.Core
 open DataParser.Console.FormatFiles
 
 let [<Literal>] trueByteLiteral = 49uy
 let [<Literal>] falseByteLiteral = 48uy
 
 type DataFileName = DataFileName of fileFormat: FormatName * rawDate : string
+
+type JsonObject = Map<string, obj>
 
 let lookupFormatName availableFormats given =
     if Set.contains given availableFormats
@@ -29,7 +30,7 @@ let parseDataFileName s =
     then Ok <| DataFileName (FormatName regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
     else Error <| DataFileNameFormatError s
     
-let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Map<string, obj> =
+let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : JsonObject =
     let parseDataType dataType (s: byte array) : Result<obj, Error> =
         match dataType with
         | JBool -> if s = [|trueByteLiteral|] then Ok true elif s = [|falseByteLiteral|] then Ok false else Error (UnparsableValue s) 

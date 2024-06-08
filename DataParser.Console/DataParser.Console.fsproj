@@ -11,6 +11,7 @@
         <Compile Include="Core.fs" />
         <Compile Include="FormatFiles.fs" />
         <Compile Include="DataFiles.fs" />
+        <Compile Include="DataFileParseResult.fs" />
         <Compile Include="FileRead.fs" />
         <Compile Include="FileWrite.fs" />
         <Compile Include="Program.fs"/>

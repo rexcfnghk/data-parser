@@ -14,9 +14,15 @@ printfn $"%A{specs}"
 match specs with
 | Error e -> raise (invalidOp $"{e}")
 | Ok specs ->
-    specs
-    |> readDataFiles dataPath
-    |> Array.iter (function Error e -> raise (invalidOp $"{e}") | Ok result -> writeOutputFile outputPath result)
+    let dataFiles =
+        specs
+        |> readDataFiles dataPath
+        
+    printfn $"%A{dataFiles}"
+        
+    match dataFiles with
+    | Error e -> raise (invalidOp $"{e}")
+    | Ok result -> writeOutputFile outputPath result
     
-printfn "Output complete. Press Enter to exit."
-ignore <| Console.ReadLine()
+    printfn "Output complete. Press Enter to exit."
+    ignore <| Console.ReadLine()
