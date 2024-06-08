@@ -1,4 +1,4 @@
-# Data Parser
+# Data Parser ![CI Build](https://github.com/rexcfnghk/data-parser/actions/workflows/dotnet.yml/badge.svg)
 
 This is a simple program that parses data files contained in the `/data` folder using formats specified in the `/specs` folder.
 
