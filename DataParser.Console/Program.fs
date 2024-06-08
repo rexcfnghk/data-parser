@@ -7,7 +7,7 @@ let [<Literal>] specPath = "./specs"
 let [<Literal>] dataPath = "./data"
 let [<Literal>] outputPath = "./output"
 
-ignore <| result {
+let program = result {
     printfn "Reading spec files..."
     let! specs = readAllSpecFiles specPath
     
@@ -18,5 +18,8 @@ ignore <| result {
     writeOutputFile outputPath dataFiles
 }
 
-printfn "Output complete. Press Enter to exit."
-ignore <| Console.ReadLine()
+match program with
+| Error e -> eprintfn $"Error occurred during processing: {e}"
+| Ok _ ->
+    printfn "Output complete. Press Enter to exit."
+    ignore <| Console.ReadLine()
