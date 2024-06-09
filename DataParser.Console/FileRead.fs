@@ -6,7 +6,7 @@ open DataParser.Console.FormatFiles
 open DataParser.Console.DataFiles
 open System.IO
 
-type DataFile =
+type DataFileFormat =
     { filePath: string
       name: DataFileName
       formatLines: FormatLine list }
@@ -17,7 +17,7 @@ let readAllSpecFiles folderPath =
     |> Map.ofArray
     |> mapSequenceResult
     
-let getDataFile (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =
+let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =
     let fileFormatSet = fileFormatLookup.Keys |> Set.ofSeq
     result {
         let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
@@ -33,5 +33,5 @@ let parseDataFile dataFile =
 let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
     Directory.GetFiles(folderPath, "*.txt")
     |> Seq.map (fun file -> file, Path.GetFileNameWithoutExtension file)
-    |> seqTraverseResult (getDataFile fileFormatLookup)
+    |> seqTraverseResult (getDataFileFormat fileFormatLookup)
     |> Result.bind (seqTraverseResult parseDataFile)
