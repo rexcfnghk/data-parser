@@ -3,9 +3,9 @@
 open DataParser.Console.DataFiles
 
 type DataFileParseResult =
-    { dataFileName : DataFileName
-      jsonElements : JsonObject seq }
+    { DataFileName : DataFileName
+      JsonElements : JsonObject seq }
     
 module DataFileParseResult =
     
-    let iter f x = ignore (f x.dataFileName x.jsonElements)
+    let iter f x = ignore (f x.DataFileName x.JsonElements)

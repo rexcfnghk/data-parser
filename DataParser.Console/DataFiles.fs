@@ -5,21 +5,25 @@ open System.IO
 open System.Text
 open System.Text.RegularExpressions
 open DataParser.Console.Core
+open DataParser.Console.Result
 open DataParser.Console.FormatFiles
 
-let [<Literal>] trueByteLiteral = 49uy
-let [<Literal>] falseByteLiteral = 48uy
+let [<Literal>] TrueByte = 49uy
+let [<Literal>] FalseByte = 48uy
 
 type DataFileName = DataFileName of fileFormat: FormatName * rawDate : string
 
 type JsonObject = Map<string, obj>
 
+type DataFileFormat =
+    { FilePath: string
+      Name: DataFileName
+      FormatLines: FormatLine list }
+
 let lookupFormatName availableFormats given =
     if Set.contains given availableFormats
     then Ok given
     else Error <| FileFormatNotFound (availableFormats, given)
-    
-let collectFormatNames = Set.ofList
 
 let dataFileNameRegex =
     Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
@@ -30,10 +34,18 @@ let parseDataFileName s =
     then Ok <| DataFileName (FormatName regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
     else Error <| DataFileNameFormatError s
     
+let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =
+    let fileFormatSet = fileFormatLookup.Keys |> Set.ofSeq
+    result {
+        let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
+        let! formatName = lookupFormatName fileFormatSet fileFormat
+        return { Name = dataFileName; FormatLines = fileFormatLookup[formatName]; FilePath = filePath }
+    }
+    
 let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Result<JsonObject, Error> =
     let parseDataType dataType (s: byte array) : Result<obj, Error> =
         match dataType with
-        | JBool -> if s = [|trueByteLiteral|] then Ok true elif s = [|falseByteLiteral|] then Ok false else Error (UnparsableValue s) 
+        | JBool -> if s = [|TrueByte|] then Ok true elif s = [|FalseByte|] then Ok false else Error (UnparsableValue s) 
         | JInt -> match System.Int32.TryParse (s, CultureInfo.InvariantCulture) with true, i -> Ok i | false, _ -> Error (UnparsableValue s)
         | JString -> Ok <| let result = Encoding.UTF8.GetString s in result.Trim()
         
