@@ -29,7 +29,7 @@ let seqTraverseResult f seq =
     
 let inline seqSequenceResult x = seqTraverseResult id x
 
-let biFoldMap f g = function
+let biFoldMap_ f g = function
     | Ok x -> ignore <| f x
     | Error e -> ignore <| g e
 

@@ -17,7 +17,7 @@ let parseDataFile dataFile =
     |> seqTraverseResult (parseDataFileLine dataFile.FormatLines)
     |> Result.map (fun jsonObject -> { DataFileName = dataFile.Name; JsonElements = jsonObject })
     
-let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
+let parseDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
     Directory.GetFiles(folderPath, "*.txt")
     |> Seq.map (fun file -> file, Path.GetFileNameWithoutExtension file)
     |> Seq.map (Result.bind parseDataFile << getDataFileFormat fileFormatLookup)

@@ -7,23 +7,21 @@ let [<Literal>] specPath = "./specs"
 let [<Literal>] dataPath = "./data"
 let [<Literal>] outputPath = "./output"
 
-let successHandler =
+let okHandler =
     printfn "Writing to output files..."
     writeOutputFile outputPath
 
-let failureHandler = List.iter (eprintfn "Error occurred during processing %A")
+let errorHandler = List.iter (eprintfn "Error occurred during processing %A")
 
 let program = result {
     printfn "Reading spec files..."
     let! specs = readAllSpecFiles specPath
     
     printfn "Parsing data files..."
-    let dataFiles = readDataFiles dataPath specs
+    let dataFiles = parseDataFiles dataPath specs
     
-    Seq.iter (biFoldMap successHandler failureHandler) dataFiles
+    Seq.iter (biFoldMap_ okHandler errorHandler) dataFiles
 }
-
-
 
 match program with
 | Error e -> raise (invalidOp $"Error occurred during processing: {e}")
