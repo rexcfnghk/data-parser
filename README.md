@@ -28,5 +28,6 @@ A docker image can be built by using the `Dockerfile`/`docker-compose.yml` file 
 
 ## Limitations
 
-- The program currently ignores unparsable rows in a data file
-- The program will also halt when any spec file cannot be parsed
+- The program will halt when any spec file cannot be parsed
+  - This assumes all spec files must be in the correct formats before the program will continue processing data files
+- Current error only contains partial information for troubleshooting
