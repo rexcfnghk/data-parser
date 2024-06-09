@@ -1,6 +1,7 @@
 ﻿module DataParser.Console.FormatFiles
 
 open System
+open System.Collections.Generic
 open System.Text.RegularExpressions
 open Core
 
@@ -27,19 +28,26 @@ let parseFormatLine (regex: Regex) line =
 let parseFormatLineHeader (line: string) =
     let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
     let lines = line.Split(',')
-    let regexes = Array.map (fun x -> headerRegexLookup[x]) lines
-    let regex = String.Join(',', regexes)
-    Regex $"^{regex}$"
+    try
+        let regexes = Array.map (fun x -> headerRegexLookup[x]) lines
+        let regex = String.Join(',', regexes)
+        Ok (Regex $"^{regex}$")
+    with
+        | :? KeyNotFoundException -> Error (UnparsableFormatFile line)
     
 let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
     try
         let formatRegex = parseFormatLineHeader lines[0]
-        lines
-        |> Array.skip 1
-        |> Array.toList
-        |> List.map (parseFormatLine formatRegex)
-        |> listSequenceResult
+        let formatFileLines =
+            lines
+            |> Array.skip 1
+            |> Array.toList
+        
+        if formatFileLines = []
+        then Error (UnparsableFormatFile file)
+        else formatFileLines |> listTraverseResult (fun s -> Result.bind (flip parseFormatLine s) formatRegex)
+        
     with
         | :? IndexOutOfRangeException -> Error (UnparsableFormatFile file)
         

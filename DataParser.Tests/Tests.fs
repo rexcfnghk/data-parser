@@ -86,7 +86,7 @@ let ``parseFormatLine returns expected FormatLine when line conforms to regex`` 
 let ``parseFormatLineHeader returns expected regex when line conforms to regex`` (header, expectedRegex) =
     let expected = Regex(expectedRegex)
 
-    $"{parseFormatLineHeader header}" =! $"{expected}"
+    test <@ match parseFormatLineHeader header with Ok r -> $"{r}" = $"{expected}" | _ -> false @>
     
 [<Xunit.Theory>]
 [<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\n")>]
@@ -103,6 +103,12 @@ let ``parseFormatFile returns expected FormatLines when there is two lines`` for
     let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString); FormatLine ("valid", 1, JsonDataType.JBool) ]
     
     parseFormatFile formatFile =! expected
+    
+[<Xunit.Fact>]
+let ``parseFormatFile returns expected Error when there are non-valid strings`` () =
+    let expected = Error (UnparsableFormatFile "F")
+    
+    parseFormatFile "F" =! expected
     
 [<Xunit.Fact>]
 let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns an expected map`` () =
