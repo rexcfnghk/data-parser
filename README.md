@@ -30,4 +30,6 @@ A docker image can be built by using the `Dockerfile`/`docker-compose.yml` file 
 
 - The program will halt when any spec file cannot be parsed
   - This assumes all spec files must be in the correct formats before the program will continue processing data files
+- The program will halt even when some but not all data files are successfully parsed
+  - All data files must be successfully parsed before files are written into the `/output` folder
 - Current error only contains partial information for troubleshooting
