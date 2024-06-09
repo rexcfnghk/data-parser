@@ -131,6 +131,18 @@ let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns a
     parseDataFileLine formatLines dataFileLine =! expected
     
 [<Xunit.Fact>]
+let ``Given a format and a dataFileLine shorter than format width, parseDataFileLine returns an Error`` () =
+    let dataFileLine = "Diabetes 1 1\n"
+    let formatLines = [
+        FormatLine ("name", 10, JsonDataType.JString)
+        FormatLine ("valid", 1, JsonDataType.JBool)
+        FormatLine("count", 3, JsonDataType.JInt)
+    ]
+    let expected : Result<JsonObject, Error list> = Error [DataFileLineLengthShorterThanSpec dataFileLine]
+    
+    parseDataFileLine formatLines dataFileLine =! expected
+    
+[<Xunit.Fact>]
 let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an expected map`` () =
     let dataFileLine = "Asthma    0-14\n"
     let formatLines = [

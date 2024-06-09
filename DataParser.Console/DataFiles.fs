@@ -45,19 +45,43 @@ let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (file
 let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Result<JsonObject, Error list> =
     let parseDataType dataType (s: byte array) : Result<obj, Error list> =
         match dataType with
-        | JBool -> if s = [|TrueByte|] then Ok true elif s = [|FalseByte|] then Ok false else Error [UnparsableValue s] 
-        | JInt -> match System.Int32.TryParse (s, CultureInfo.InvariantCulture) with true, i -> Ok i | false, _ -> Error [UnparsableValue s]
-        | JString -> Ok <| let result = Encoding.UTF8.GetString s in result.Trim()
+        | JBool ->
+            if s = [|TrueByte|]
+            then Ok true
+            elif s = [|FalseByte|]
+            then Ok false
+            else
+                let errorValue = Encoding.UTF8.GetString s
+                Error [UnparsableValue errorValue] 
+        | JInt ->
+            match System.Int32.TryParse (s, CultureInfo.InvariantCulture) with
+            | true, i -> Ok i
+            | false, _ ->
+                let errorValue = Encoding.UTF8.GetString s
+                Error [UnparsableValue errorValue] 
+        | JString ->
+            let result = Encoding.UTF8.GetString s
+            Ok <| result.Trim()
         
-    let folder (stream : MemoryStream, map) (FormatLine (columnName, width, dataType)) =
-        let byteArray = Array.create width 0uy
-        stream.ReadExactly(byteArray, 0, width)
-        let result = parseDataType dataType byteArray
-        stream, Map.add columnName result map
+    let folder result (FormatLine (columnName, width, dataType)) =
+        match result with
+        | Error e -> Error e
+        | Ok (stream : MemoryStream, map) ->
+            let byteArray = Array.create width 0uy
+            try
+                stream.ReadExactly(byteArray, 0, width)
+                let result = parseDataType dataType byteArray
+                Ok (stream, Map.add columnName result map)
+            with
+            | :? EndOfStreamException ->
+                let line = Encoding.UTF8.GetString (stream.ToArray())
+                Error [DataFileLineLengthShorterThanSpec line]
     
     let bytes : byte array = Encoding.UTF8.GetBytes dataFileLine
     use s = new MemoryStream(bytes)
-    let _, map = List.fold folder (s, Map.empty) formatLines
+    let initialState = Ok (s, Map.empty)
+    let map =
+        List.fold folder initialState formatLines
+        |> Result.bind (mapSequenceResult << snd)
     
     map
-    |> mapSequenceResult
