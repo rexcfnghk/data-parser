@@ -17,24 +17,24 @@ let (<*>) f x =
     
 let (<!>) f x = Result.map f x
     
-let rec traverseList f list =
+let rec listTraverseResult f list =
     let cons head tail = head :: tail
     match list with
     | [] -> Ok []
-    | x :: xs -> cons <!> (f x) <*> (traverseList f xs)
+    | x :: xs -> cons <!> (f x) <*> (listTraverseResult f xs)
     
-let inline sequenceList x  = traverseList id x
+let inline listSequenceResult x  = listTraverseResult id x
 
-let traverseMap f map =
+let mapTraverseResult f map =
     let folder s k v = Map.add <!> Ok k <*> f v <*> s
     Map.fold folder (Ok Map.empty) map
     
-let inline sequenceMap x = traverseMap id x
+let inline mapSequenceResult x = mapTraverseResult id x
 
-let rec traverseSeq f seq =
-    let folder s x = Seq.append <!> f x <*> s 
+let seqTraverseResult f seq =
+    let folder s x = Seq.append <!> (Result.map Seq.singleton) (f x) <*> s
     Seq.fold folder (Ok Seq.empty) seq
     
-let inline sequenceSeq x = traverseSeq id x
+let inline seqSequenceResult x = seqTraverseResult id x
 
 let flip f x y = f y x

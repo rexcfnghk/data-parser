@@ -39,7 +39,7 @@ let parseFormatFile (file: string) =
         |> Array.skip 1
         |> Array.toList
         |> List.map (parseFormatLine formatRegex)
-        |> sequenceList
+        |> listSequenceResult
     with
         | :? IndexOutOfRangeException -> Error (UnparsableFormatFile file)
         

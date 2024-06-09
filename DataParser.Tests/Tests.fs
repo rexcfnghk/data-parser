@@ -119,7 +119,7 @@ let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns a
         FormatLine ("valid", 1, JsonDataType.JBool)
         FormatLine("count", 3, JsonDataType.JInt)
     ]
-    let expected : Map<string, obj> = Map.ofList [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
+    let expected : Result<JsonObject, Error> = Ok <| Map.ofList [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
     
@@ -131,7 +131,7 @@ let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an 
         FormatLine ("valid", 1, JsonDataType.JBool)
         FormatLine("count", 3, JsonDataType.JInt)
     ]
-    let expected : Map<string, obj> = Map.ofList [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
+    let expected : Result<JsonObject, Error> = Ok <| Map.ofList [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
     
@@ -143,7 +143,8 @@ let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an 
         FormatLine ("valid", 1, JsonDataType.JBool)
         FormatLine("count", 3, JsonDataType.JInt)
     ]
-    let expected : Map<string, obj> = Map.ofList [ ("name", "Stroke"); ("valid", true); ("count", 122) ]
+
+    let expected : Result<JsonObject, Error> = Ok <| Map.ofList [ ("name", "Stroke"); ("valid", true); ("count", 122) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
 

@@ -30,7 +30,7 @@ let parseDataFileName s =
     then Ok <| DataFileName (FormatName regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
     else Error <| DataFileNameFormatError s
     
-let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : JsonObject =
+let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Result<JsonObject, Error> =
     let parseDataType dataType (s: byte array) : Result<obj, Error> =
         match dataType with
         | JBool -> if s = [|trueByteLiteral|] then Ok true elif s = [|falseByteLiteral|] then Ok false else Error (UnparsableValue s) 
@@ -47,7 +47,5 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
     use s = new MemoryStream(bytes)
     let _, map = List.fold folder (s, Map.empty) formatLines
     
-    // TODO: Make the structure a proper functor
     map
-    |> Map.filter (fun _ -> Result.isOk)
-    |> Map.map (fun _ (Ok v) -> v)
+    |> mapSequenceResult
