@@ -1,6 +1,7 @@
 ﻿module DataParser.Console.FileRead
 
 open DataParser.Console.Core
+open DataParser.Console.Result
 open DataParser.Console.FormatFiles
 open DataParser.Console.DataFiles
 open System.IO
@@ -19,5 +20,4 @@ let parseDataFile dataFile =
 let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
     Directory.GetFiles(folderPath, "*.txt")
     |> Seq.map (fun file -> file, Path.GetFileNameWithoutExtension file)
-    |> seqTraverseResult (getDataFileFormat fileFormatLookup)
-    |> Result.bind (seqTraverseResult parseDataFile)
+    |> Seq.map (Result.bind parseDataFile << getDataFileFormat fileFormatLookup)

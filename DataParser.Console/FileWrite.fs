@@ -5,7 +5,7 @@ open System.IO
 open DataParser.Console.DataFiles
 open DataParser.Console.Core
 
-let writeOutputFile folderPath (fileMap : DataFileParseResult seq) =
+let writeOutputFile folderPath (fileMap : DataFileParseResult) =
     let serializeAndWrite (DataFileName (FormatName format, rawDate)) (jsonElements: JsonObject seq) =
         let serializeElement (stream: FileStream) (jsonObject : JsonObject) =
             let serialized = JsonSerializer.Serialize jsonObject
@@ -16,6 +16,5 @@ let writeOutputFile folderPath (fileMap : DataFileParseResult seq) =
         use fs = File.Open (folderPath + $"/{format}_{rawDate}.ndjson", FileMode.Create)
         Seq.iter (serializeElement fs) jsonElements
     
-    fileMap
-    |> Seq.iter (DataFileParseResult.iter serializeAndWrite)
+    DataFileParseResult.iter serializeAndWrite fileMap
     
