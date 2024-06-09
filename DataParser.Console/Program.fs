@@ -19,7 +19,7 @@ let program = result {
 }
 
 match program with
-| Error e -> eprintfn $"Error occurred during processing: {e}"
+| Error e -> raise (invalidOp $"Error occurred during processing: {e}")
 | Ok _ ->
     printfn "Output complete. Press Enter to exit."
     ignore <| Console.ReadLine()
