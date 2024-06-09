@@ -1,6 +1,5 @@
 ﻿module DataParser.Console.FileRead
 
-open System.Collections.Generic
 open DataParser.Console.Result
 open DataParser.Console.Core
 open DataParser.Console.FormatFiles
@@ -31,31 +30,8 @@ let parseDataFile dataFile =
     |> seqTraverseResult (parseDataFileLine dataFile.formatLines)
     |> Result.map (fun jsonObject -> { dataFileName = dataFile.name; jsonElements = jsonObject })
     
-let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) = //: Result<DataFileParseResult seq,Error> =
-    // let getDataFileFormat (filePath: string) =
-    //     let fileName = Path.GetFileNameWithoutExtension filePath
-    //     let fileFormatSet = fileFormatLookup.Keys |> Set.ofSeq
-    //     result {
-    //         let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
-    //         let! formatName = lookupFormatName fileFormatSet fileFormat
-    //         let formatLines = fileFormatLookup[formatName]
-    //         let value =
-    //             File.ReadLines filePath
-    //             |> traverseSeq (parseDataFileLine formatLines)
-    //         return! Map.add <!> Ok dataFileName <*> value <*> Ok Map.empty
-    //         //return Map.empty   
-    //     }
-        
-    // let mapJsonMapToDataFileParseResult (kvps: KeyValuePair<DataFileName, KeyValuePair<string, obj> seq> seq) : DataFileParseResult seq =
-    //     let toJsonObject kvps : JsonObject seq = Seq.fold (fun s (KeyValue (k, v)) -> Map.add k v s) Map.empty kvps
-    //     Seq.map (fun (KeyValue (k, v)) -> { dataFileName =  k; jsonElements = (Seq.map toJsonObject v) }) kvps
-
-    let x = Directory.GetFiles(folderPath, "*.txt")
-            |> Seq.map (fun file -> file, Path.GetFileNameWithoutExtension file)
-            |> seqTraverseResult (getDataFile fileFormatLookup)
-            |> Result.bind (seqTraverseResult parseDataFile)
-
-    x
-    // |> Seq.map getDataFileFormat
-    // |> sequenceSeq
-    // |> Result.map mapJsonMapToDataFileParseResult
+let readDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
+    Directory.GetFiles(folderPath, "*.txt")
+    |> Seq.map (fun file -> file, Path.GetFileNameWithoutExtension file)
+    |> seqTraverseResult (getDataFile fileFormatLookup)
+    |> Result.bind (seqTraverseResult parseDataFile)
