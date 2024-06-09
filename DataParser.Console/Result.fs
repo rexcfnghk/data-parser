@@ -9,6 +9,7 @@ type ResultBuilder() =
     member _.MergeSources(x, y) =
         match x, y with
         | Ok x, Ok y -> Ok (x, y)
+        | Error e1, Error e2 -> Error (e1 @ e2)
         | Error e, _ -> Error e
         | _, Error e -> Error e
     

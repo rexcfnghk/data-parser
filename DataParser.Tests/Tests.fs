@@ -27,7 +27,7 @@ let ``Unfound format returns false when element does not exist in set`` (xs: Set
 let ``lookupFormatName returns FormatNotFound error when element does not exist in set`` (xs: Set<FormatName>) (x: FormatName) =
     // Arrange
     let sut = Set.remove x xs
-    let expected = Error <| FileFormatNotFound (sut, x)
+    let expected = Error [FileFormatNotFound (sut, x)]
     
     // Act Assert
     lookupFormatName sut x =! expected
@@ -47,7 +47,7 @@ let ``FormatLines are compared with structural equality`` (columnName: string) (
     
 [<Property>]
 let ``parseDataFileName should return error when file name does not conform to expected format`` (s: string) =
-    let expected = Error <| DataFileNameFormatError s
+    let expected = Error [DataFileNameFormatError s]
     
     parseDataFileName s =! expected
     
@@ -62,7 +62,7 @@ let ``parseDataFileName should return ok with expected fields when file conform 
     
 [<Property>]
 let ``parseFormatLine returns error when line does not conform to expected format`` (s: string) =
-    let expected = Error <| UnexpectedFormatLine s
+    let expected = Error [UnexpectedFormatLine s]
     let regex = Regex("^\n$")
     
     parseFormatLine regex s =! expected
@@ -86,7 +86,15 @@ let ``parseFormatLine returns expected FormatLine when line conforms to regex`` 
 let ``parseFormatLineHeader returns expected regex when line conforms to regex`` (header, expectedRegex) =
     let expected = Regex(expectedRegex)
 
-    test <@ match parseFormatLineHeader header with Ok r -> $"{r}" = $"{expected}" | _ -> false @>
+    match parseFormatLineHeader header with
+    | Ok r -> $"{r}" =! $"{expected}"
+    | _ -> failwith "Nope"
+    
+[<Xunit.Fact>]
+let ``parseFormatLineHeader returns expected error when line does not conforms to regex`` () =
+    let badHeader = "\"column nae\",width,datatype"
+    
+    test <@ match parseFormatLineHeader badHeader with Error e -> e = [UnexpectedFormatHeader badHeader] | _ -> false @>
     
 [<Xunit.Theory>]
 [<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\n")>]
@@ -106,7 +114,7 @@ let ``parseFormatFile returns expected FormatLines when there is two lines`` for
     
 [<Xunit.Fact>]
 let ``parseFormatFile returns expected Error when there are non-valid strings`` () =
-    let expected = Error (UnparsableFormatFile "F")
+    let expected = Error [UnparsableFormatFile "F"]
     
     parseFormatFile "F" =! expected
     
@@ -118,7 +126,7 @@ let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns a
         FormatLine ("valid", 1, JsonDataType.JBool)
         FormatLine("count", 3, JsonDataType.JInt)
     ]
-    let expected : Result<JsonObject, Error> = Ok <| Map.ofList [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
+    let expected : Result<JsonObject, Error list> = Ok <| Map.ofList [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
     
@@ -130,7 +138,7 @@ let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an 
         FormatLine ("valid", 1, JsonDataType.JBool)
         FormatLine("count", 3, JsonDataType.JInt)
     ]
-    let expected : Result<JsonObject, Error> = Ok <| Map.ofList [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
+    let expected : Result<JsonObject, Error list> = Ok <| Map.ofList [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
     
@@ -143,7 +151,7 @@ let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an 
         FormatLine("count", 3, JsonDataType.JInt)
     ]
 
-    let expected : Result<JsonObject, Error> = Ok <| Map.ofList [ ("name", "Stroke"); ("valid", true); ("count", 122) ]
+    let expected : Result<JsonObject, Error list> = Ok <| Map.ofList [ ("name", "Stroke"); ("valid", true); ("count", 122) ]
     
     parseDataFileLine formatLines dataFileLine =! expected
 
@@ -151,4 +159,4 @@ let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an 
 let ``parseFormatFile should return error when file is an empty string`` () =
     let file = ""
     
-    parseFormatFile file =! Error (UnparsableFormatFile file)
+    parseFormatFile file =! Error [UnparsableFormatFile file]

@@ -13,7 +13,7 @@ let parseJsonDataType line = function
     | "TEXT" -> Ok JsonDataType.JString
     | "BOOLEAN" -> Ok JsonDataType.JBool
     | "INTEGER" -> Ok JsonDataType.JInt
-    | _ -> Error <| UnexpectedFormatLine line
+    | _ -> Error [UnexpectedFormatLine line]
 
 let parseFormatLine (regex: Regex) line =
     let regexMatch = regex.Match line
@@ -23,17 +23,22 @@ let parseFormatLine (regex: Regex) line =
         match jsonDataType with
         | Ok x -> Ok <| FormatLine (regexMatch.Groups["name"].Value, Int32.Parse(regexMatch.Groups["width"].Value), x)
         | Error e -> Error e
-    else Error <| UnexpectedFormatLine line
+    else Error [UnexpectedFormatLine line]
 
 let parseFormatLineHeader (line: string) =
+    let headerLookup (dict : IDictionary<string, string>) v =
+        match dict.TryGetValue v with
+        | true, s -> Ok s
+        | false, _ -> Error [UnexpectedFormatHeader line]
+        
+    let buildRegex (regexStrings: string seq) =
+        let joined = String.Join(',', regexStrings)
+        Regex $"^{joined}$"
+    
     let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
     let lines = line.Split(',')
-    try
-        let regexes = Array.map (fun x -> headerRegexLookup[x]) lines
-        let regex = String.Join(',', regexes)
-        Ok (Regex $"^{regex}$")
-    with
-        | :? KeyNotFoundException -> Error (UnparsableFormatFile line)
+    let regexes = seqTraverseResult (headerLookup headerRegexLookup) lines
+    Result.map buildRegex regexes
     
 let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
@@ -45,9 +50,9 @@ let parseFormatFile (file: string) =
             |> Array.toList
         
         if formatFileLines = []
-        then Error (UnparsableFormatFile file)
+        then Error [UnparsableFormatFile file]
         else formatFileLines |> listTraverseResult (fun s -> Result.bind (flip parseFormatLine s) formatRegex)
         
     with
-        | :? IndexOutOfRangeException -> Error (UnparsableFormatFile file)
+        | :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
         
