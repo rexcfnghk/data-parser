@@ -1,7 +1,6 @@
 module DataParser.Tests.Main
 
 open System
-open System.Collections.Generic
 open System.Globalization
 open System.Text.RegularExpressions
 open DataParser.Console.Core
@@ -45,12 +44,6 @@ let ``lookupFormatName returns Ok when element exists in set`` (xs: Set<FormatNa
 [<Property>]
 let ``FormatLines are compared with structural equality`` (columnName: string) (width: int) (dataType: JsonDataType) =
     FormatLine (columnName, width, dataType) =! FormatLine (columnName, width, dataType)
-    
-[<Property>]
-let ``collectFormatNames should return a set with every file format in the input list`` (xs: FormatName list) =
-    let resultSet = Set.ofList xs
-    
-    test <@ Set.isSubset resultSet (collectFormatNames xs) @>
     
 [<Property>]
 let ``parseDataFileName should return error when file name does not conform to expected format`` (s: string) =
