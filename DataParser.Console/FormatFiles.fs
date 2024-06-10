@@ -38,21 +38,29 @@ let parseFormatLineHeader (line: string) =
         Regex $"^{joined}$"
     
     let lines = line.Split(',')
-    let regexes = Result.traverseSeq (headerLookup headerRegexLookup) lines
-    Result.map buildRegex regexes
+    result {
+        let! regexes = Result.traverseSeq (headerLookup headerRegexLookup) lines
+        return buildRegex regexes
+    }
     
 let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
-    try
-        let formatRegex = parseFormatLineHeader lines[0]
-        let formatFileLines =
-            lines
-            |> Array.skip 1
-            |> Array.toList
-        
-        if formatFileLines = []
-        then Error [UnparsableFormatFile file]
-        else formatFileLines |> Result.traverseList (fun s -> Result.bind (flip parseFormatLine s) formatRegex)
-        
-    with :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
+    
+    if lines = Array.empty
+    then Error [UnparsableFormatFile file]
+    else
+        try
+            let formatFileLines =
+                lines
+                |> Array.skip 1
+                |> Array.toList
+            
+            if formatFileLines = []
+            then Error [UnparsableFormatFile file]
+            else result {
+                let! formatRegex = parseFormatLineHeader lines[0]
+                return! Result.traverseList (parseFormatLine formatRegex) formatFileLines
+            }
+            
+        with :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
         
