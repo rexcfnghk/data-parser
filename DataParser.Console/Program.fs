@@ -1,7 +1,6 @@
 ﻿open System
 open DataParser.Console.FileRead
 open DataParser.Console.FileWrite
-open DataParser.Console.Result
 
 [<Literal>] 
 let specPath = "./specs"
@@ -24,7 +23,7 @@ result {
     let dataFiles = parseDataFiles dataPath specs
     
     printfn "Writing to output..."
-    Seq.iter (biFoldMap_ okHandler errorHandler) dataFiles
+    Seq.iter (Result.biFoldMap_ okHandler errorHandler) dataFiles
 } |> ignore
 
 printfn "Processing complete. Press Enter to exit."

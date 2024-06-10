@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <Compile Include="Result.fs" />
+        <Compile Include="ResultBuilder.fs" />
         <Compile Include="Core.fs" />
         <Compile Include="FormatFiles.fs" />
         <Compile Include="DataFiles.fs" />

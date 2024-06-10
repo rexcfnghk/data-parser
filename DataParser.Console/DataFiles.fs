@@ -5,7 +5,6 @@ open System.IO
 open System.Text
 open System.Text.RegularExpressions
 open DataParser.Console.Core
-open DataParser.Console.Result
 open DataParser.Console.FormatFiles
 
 let [<Literal>] TrueByte = 49uy
@@ -79,8 +78,9 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
     let bytes : byte array = Encoding.UTF8.GetBytes dataFileLine
     use s = new MemoryStream(bytes)
     let initialState = Ok (s, Map.empty)
-    let map =
-        List.fold folder initialState formatLines
-        |> Result.bind (Result.map JsonObject << mapSequenceResult << snd)
     
-    map
+    result {
+        let! _, jsonObjectMap = List.fold folder initialState formatLines
+        let! y = Result.sequenceMap jsonObjectMap
+        return JsonObject y
+    }

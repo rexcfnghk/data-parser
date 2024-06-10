@@ -1,7 +1,6 @@
 ﻿module DataParser.Console.FileRead
 
 open DataParser.Console.Core
-open DataParser.Console.Result
 open DataParser.Console.FormatFiles
 open DataParser.Console.DataFiles
 open System.IO
@@ -10,14 +9,20 @@ let readAllSpecFiles folderPath =
     Directory.GetFiles(folderPath, "*.csv")
     |> Array.map (fun x -> FormatName (Path.GetFileNameWithoutExtension x), parseFormatFile (File.ReadAllText x))
     |> Map.ofArray
-    |> mapSequenceResult
+    |> Result.sequenceMap
     
 let parseDataFile dataFile =
     File.ReadLines dataFile.FilePath
-    |> seqTraverseResult (parseDataFileLine dataFile.FormatLines)
+    |> Result.traverseSeq (parseDataFileLine dataFile.FormatLines)
     |> Result.map (fun jsonObject -> { DataFileName = dataFile.Name; JsonElements = jsonObject })
     
 let parseDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
-    Directory.GetFiles(folderPath, "*.txt")
-    |> Seq.map (fun file -> file, Path.GetFileNameWithoutExtension file)
-    |> Seq.map (Result.bind parseDataFile << getDataFileFormat fileFormatLookup)
+    seq {
+        for file in Directory.GetFiles(folderPath, "*.txt") do
+            let f = file, Path.GetFileNameWithoutExtension file
+            
+            result {
+                let! dataFileFormat = getDataFileFormat fileFormatLookup f
+                return! parseDataFile dataFileFormat
+            }
+    }

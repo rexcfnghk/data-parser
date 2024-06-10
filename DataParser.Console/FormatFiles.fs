@@ -4,7 +4,6 @@ open System
 open System.Collections.Generic
 open System.Text.RegularExpressions
 open Core
-open Result
 
 type JsonDataType = JString | JBool | JInt
 
@@ -39,7 +38,7 @@ let parseFormatLineHeader (line: string) =
         Regex $"^{joined}$"
     
     let lines = line.Split(',')
-    let regexes = seqTraverseResult (headerLookup headerRegexLookup) lines
+    let regexes = Result.traverseSeq (headerLookup headerRegexLookup) lines
     Result.map buildRegex regexes
     
 let parseFormatFile (file: string) =
@@ -53,7 +52,7 @@ let parseFormatFile (file: string) =
         
         if formatFileLines = []
         then Error [UnparsableFormatFile file]
-        else formatFileLines |> listTraverseResult (fun s -> Result.bind (flip parseFormatLine s) formatRegex)
+        else formatFileLines |> Result.traverseList (fun s -> Result.bind (flip parseFormatLine s) formatRegex)
         
     with :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
         
