@@ -24,24 +24,6 @@ let ``Unfound format returns false when element does not exist in set`` (xs: Set
     test <@ not <| Set.contains x sut @>
     
 [<Property>]
-let ``lookupFormatName returns FormatNotFound error when element does not exist in set`` (xs: Set<FormatName>) (x: FormatName) =
-    // Arrange
-    let sut = Set.remove x xs
-    let expected = Error [FileFormatNotFound (sut, x)]
-    
-    // Act Assert
-    lookupFormatName sut x =! expected
-    
-[<Property>]
-let ``lookupFormatName returns Ok when element exists in set`` (xs: Set<FormatName>) (x: FormatName) =
-    // Arrange
-    let sut = Set.add x xs
-    let expected = Ok x
-    
-    // Act Assert
-    lookupFormatName sut x =! expected
-    
-[<Property>]
 let ``FormatLines are compared with structural equality`` (columnName: string) (width: int) (dataType: JsonDataType) =
     FormatLine (columnName, width, dataType) =! FormatLine (columnName, width, dataType)
     

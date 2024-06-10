@@ -19,10 +19,10 @@ type DataFileFormat =
       Name: DataFileName
       FormatLines: FormatLine list }
 
-let lookupFormatName availableFormats given =
-    if Set.contains given availableFormats
-    then Ok given
-    else Error [FileFormatNotFound (availableFormats, given)]
+let tryLookupFormatLines availableFormats given =
+    match Map.tryFind given availableFormats with
+    | Some v -> Ok v
+    | None -> Error <| [FileFormatNotFound (availableFormats.Keys, given)]
 
 let dataFileNameRegex =
     Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
@@ -34,11 +34,10 @@ let parseDataFileName s =
     else Error [DataFileNameFormatError s]
     
 let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =
-    let fileFormatSet = fileFormatLookup.Keys |> Set.ofSeq
     result {
         let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
-        let! formatName = lookupFormatName fileFormatSet fileFormat
-        return { Name = dataFileName; FormatLines = fileFormatLookup[formatName]; FilePath = filePath }
+        let! formatLines = tryLookupFormatLines fileFormatLookup fileFormat
+        return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
     }
     
 let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Result<JsonObject, Error list> =

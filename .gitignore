@@ -6,3 +6,4 @@ riderModule.iml
 *.DotSettings.user
 output/
 .fake
+TestResults/*
