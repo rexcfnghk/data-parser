@@ -10,6 +10,8 @@ type JsonDataType = JString | JBool | JInt
 
 type FormatLine = FormatLine of columnName: string * width: int * dataType : JsonDataType
 
+let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
+
 let parseJsonDataType line = function
     | "TEXT" -> Ok JsonDataType.JString
     | "BOOLEAN" -> Ok JsonDataType.JBool
@@ -36,7 +38,6 @@ let parseFormatLineHeader (line: string) =
         let joined = String.Join(',', regexStrings)
         Regex $"^{joined}$"
     
-    let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
     let lines = line.Split(',')
     let regexes = seqTraverseResult (headerLookup headerRegexLookup) lines
     Result.map buildRegex regexes
