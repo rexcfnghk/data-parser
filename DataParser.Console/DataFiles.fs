@@ -13,7 +13,7 @@ let [<Literal>] FalseByte = 48uy
 
 type DataFileName = DataFileName of fileFormat: FormatName * rawDate : string
 
-type JsonObject = Map<string, obj>
+type JsonObject = JsonObject of Map<string, obj>
 
 type DataFileFormat =
     { FilePath: string
@@ -72,8 +72,7 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
                 stream.ReadExactly(byteArray, 0, width)
                 let result = parseDataType dataType byteArray
                 Ok (stream, Map.add columnName result map)
-            with
-            | :? EndOfStreamException ->
+            with :? EndOfStreamException ->
                 let line = Encoding.UTF8.GetString (stream.ToArray())
                 Error [DataFileLineLengthShorterThanSpec line]
     
@@ -82,6 +81,6 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
     let initialState = Ok (s, Map.empty)
     let map =
         List.fold folder initialState formatLines
-        |> Result.bind (mapSequenceResult << snd)
+        |> Result.bind (Result.map JsonObject << mapSequenceResult << snd)
     
     map

@@ -13,9 +13,9 @@ type FormatLine = FormatLine of columnName: string * width: int * dataType : Jso
 let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
 
 let parseJsonDataType line = function
-    | "TEXT" -> Ok JsonDataType.JString
-    | "BOOLEAN" -> Ok JsonDataType.JBool
-    | "INTEGER" -> Ok JsonDataType.JInt
+    | "TEXT" -> Ok JString
+    | "BOOLEAN" -> Ok JBool
+    | "INTEGER" -> Ok JInt
     | _ -> Error [UnexpectedFormatLine line]
 
 let parseFormatLine (regex: Regex) line =
@@ -55,6 +55,5 @@ let parseFormatFile (file: string) =
         then Error [UnparsableFormatFile file]
         else formatFileLines |> listTraverseResult (fun s -> Result.bind (flip parseFormatLine s) formatRegex)
         
-    with
-        | :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
+    with :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
         

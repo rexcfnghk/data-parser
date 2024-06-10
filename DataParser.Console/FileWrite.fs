@@ -7,7 +7,7 @@ open DataParser.Console.Core
 
 let writeOutputFile folderPath (fileMap : DataFileParseResult) =
     let serializeAndWrite (DataFileName (FormatName format, rawDate)) (jsonElements: JsonObject seq) =
-        let serializeElement (stream: FileStream) (jsonObject : JsonObject) =
+        let serializeElement (stream: FileStream) (JsonObject jsonObject) =
             let serialized = JsonSerializer.Serialize jsonObject
             let bytes = System.Text.Encoding.UTF8.GetBytes $"{serialized}\n"
             stream.Write bytes

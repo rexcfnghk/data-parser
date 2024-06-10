@@ -3,13 +3,18 @@ open DataParser.Console.FileRead
 open DataParser.Console.FileWrite
 open DataParser.Console.Result
 
-let [<Literal>] specPath = "./specs"
-let [<Literal>] dataPath = "./data"
-let [<Literal>] outputPath = "./output"
+[<Literal>] 
+let specPath = "./specs"
+
+[<Literal>]
+let dataPath = "./data"
+
+[<Literal>]
+let outputPath = "./output"
 
 let okHandler = writeOutputFile outputPath
 
-let errorHandler = List.iter (eprintfn "Error occurred during processing: %A")
+let errorHandler = List.iter (eprintfn "Error occurred during processing: %+A")
 
 result {
     printfn "Reading spec files..."
