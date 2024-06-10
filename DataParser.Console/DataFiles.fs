@@ -19,26 +19,19 @@ type DataFileFormat =
       Name: DataFileName
       FormatLines: FormatLine list }
 
+let dataFileNameRegex =
+    Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
+    
 let tryLookupFormatLines availableFormats given =
     match Map.tryFind given availableFormats with
     | Some v -> Ok v
-    | None -> Error <| [FileFormatNotFound (availableFormats.Keys, given)]
-
-let dataFileNameRegex =
-    Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
+    | None -> Error <| [FileFormatNotFound (Set.ofSeq availableFormats.Keys, given)]
 
 let parseDataFileName s =
     let regexMatch = dataFileNameRegex.Match s
     if regexMatch.Success
     then Ok <| DataFileName (FormatName regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
     else Error [DataFileNameFormatError s]
-    
-let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =
-    result {
-        let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
-        let! formatLines = tryLookupFormatLines fileFormatLookup fileFormat
-        return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
-    }
     
 let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Result<JsonObject, Error list> =
     let parseDataType dataType (s: byte array) : Result<obj, Error list> =

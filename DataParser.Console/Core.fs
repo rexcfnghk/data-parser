@@ -1,11 +1,9 @@
 ﻿module DataParser.Console.Core
 
-open System.Collections.Generic
-
 type FormatName = FormatName of string
 
 type Error =
-    | FileFormatNotFound of availableFormats: ICollection<FormatName> * givenFormat : FormatName
+    | FileFormatNotFound of availableFormats: Set<FormatName> * givenFormat : FormatName
     | DataFileNameFormatError of fileName: string
     | UnexpectedFormatHeader of string
     | UnexpectedFormatLine of string

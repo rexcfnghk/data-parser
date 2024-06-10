@@ -24,6 +24,13 @@ let parseDataFile dataFile =
     }
     
 let parseDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
+    let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =           
+        result {
+            let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
+            let! formatLines = tryLookupFormatLines fileFormatLookup fileFormat
+            return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
+        }
+    
     seq {
         for file in Directory.GetFiles(folderPath, "*.txt") do
             let f = file, Path.GetFileNameWithoutExtension file

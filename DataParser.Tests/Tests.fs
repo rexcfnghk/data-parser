@@ -176,3 +176,20 @@ let ``parseFormatFile should return error when file is an empty string`` () =
     
     parseFormatFile file =! Error [UnparsableFormatFile file]
     
+[<Property>]
+let ``tryLookupFormatLines returns expected error when map does not contain FormatName`` (map: Map<FormatName, FormatLine list>) formatName =
+    let sut = Map.remove formatName map
+    let keys = Set.ofSeq sut.Keys
+    
+    test <@ match tryLookupFormatLines sut formatName with
+            | Ok _ -> false
+            | Error x -> x = [FileFormatNotFound (keys, formatName)] @>
+    
+[<Property>]
+let ``tryLookupFormatLines returns expected Ok when map contains FormatName`` (map: Map<FormatName, FormatLine list>) formatName formatLines =
+    let sut = Map.add formatName formatLines map
+    
+    test <@ match tryLookupFormatLines sut formatName with
+            | Error _ -> false
+            | Ok x ->  x = sut[formatName] @>
+    
