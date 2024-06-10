@@ -6,15 +6,17 @@ open DataParser.Console.DataFiles
 open DataParser.Console.Core
 
 let writeOutputFile folderPath (fileMap : DataFileParseResult) =
-    let serializeAndWrite (DataFileName (FormatName format, rawDate)) (jsonElements: JsonObject seq) =
-        let serializeElement (stream: FileStream) (JsonObject jsonObject) =
-            let serialized = JsonSerializer.Serialize jsonObject
-            let bytes = System.Text.Encoding.UTF8.GetBytes $"{serialized}\n"
-            stream.Write bytes
+    let serializeElement (JsonObject jsonObject) =
+        let serialized = JsonSerializer.Serialize jsonObject
+        System.Text.Encoding.UTF8.GetBytes $"{serialized}\n"
         
-        ignore <| Directory.CreateDirectory folderPath
-        use fs = File.Open (folderPath + $"/{format}_{rawDate}.ndjson", FileMode.Create)
-        Seq.iter (serializeElement fs) jsonElements
+    let writeBytes (stream: Stream) (bytes: byte array) = stream.Write bytes
     
-    DataFileParseResult.iter serializeAndWrite fileMap
+    let createOutputFilePath (DataFileName (FormatName format, rawDate)) =
+        folderPath + $"/{format}_{rawDate}.ndjson"
+        
+    ignore <| Directory.CreateDirectory folderPath
+    let filePath = createOutputFilePath fileMap.DataFileName
+    use fs = File.Open (filePath, FileMode.Create)
+    Seq.iter (writeBytes fs << serializeElement) fileMap.JsonElements
     

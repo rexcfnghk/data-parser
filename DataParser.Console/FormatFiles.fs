@@ -33,7 +33,7 @@ let parseFormatLineHeader (line: string) =
         | true, s -> Ok s
         | false, _ -> Error [UnexpectedFormatHeader line]
         
-    let buildRegex (regexStrings: string seq) =
+    let buildRegex (regexStrings: seq<string>) =
         let joined = String.Join(',', regexStrings)
         Regex $"^{joined}$"
     
