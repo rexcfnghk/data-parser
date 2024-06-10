@@ -30,6 +30,6 @@ module Result
         
     let inline sequenceSeq x = traverseSeq id x
 
-    let biFoldMap_ f g = function
-        | Ok x -> ignore <| f x
-        | Error e -> ignore <| g e
+    let biTraverse_ f g = function
+        | Ok x -> f x : unit
+        | Error e -> g e : unit

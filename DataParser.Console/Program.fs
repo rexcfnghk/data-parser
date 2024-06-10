@@ -23,7 +23,7 @@ result {
     let dataFiles = parseDataFiles dataPath specs
     
     printfn "Writing to output..."
-    Seq.iter (Result.biFoldMap_ okHandler errorHandler) dataFiles
+    Seq.iter (Result.biTraverse_ okHandler errorHandler) dataFiles
 } |> ignore
 
 printfn "Processing complete. Press Enter to exit."
