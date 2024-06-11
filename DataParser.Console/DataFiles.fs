@@ -1,5 +1,6 @@
 ﻿module DataParser.Console.DataFiles
 
+open System
 open System.Globalization
 open System.IO
 open System.Text
@@ -37,15 +38,14 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
     let parseDataType dataType (s: byte array) : Result<obj, Error list> =
         match dataType with
         | JBool ->
-            if s = [|TrueByte|]
-            then Ok true
-            elif s = [|FalseByte|]
-            then Ok false
-            else
+            match s with
+            | [| TrueByte |] -> Ok true
+            | [| FalseByte |] -> Ok false
+            | _ ->
                 let errorValue = Encoding.UTF8.GetString s
                 Error [UnparsableValue errorValue] 
         | JInt ->
-            match System.Int32.TryParse (s, CultureInfo.InvariantCulture) with
+            match Int32.TryParse (s, CultureInfo.InvariantCulture) with
             | true, i -> Ok i
             | false, _ ->
                 let errorValue = Encoding.UTF8.GetString s
