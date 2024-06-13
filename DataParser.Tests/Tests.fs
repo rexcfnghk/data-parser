@@ -193,3 +193,25 @@ let ``tryLookupFormatLines returns expected Ok when map contains FormatName`` (m
             | Error _ -> false
             | Ok x ->  x = sut[formatName] @>
     
+[<Property>]
+let ``Result obeys applicative identity law`` (x: int) =
+    Result.(<*>) (Ok id) (Ok x) =! Ok x
+    
+[<Property>]
+let ``Result obeys applicative homomorphism law`` (x: int) (xs: int list) =
+    let cons x xs = x :: xs
+    
+    let actual = result {
+        let! x = Ok x
+        and! xs = Ok xs
+        return cons x xs
+    }
+    
+    actual =! Ok (cons x xs)
+    
+[<Property>]
+let ``traverseSeq concat errors`` (x: int) (y: int) (z: Error list) =
+    let sut = seq { x; y }
+    let traverser _ = Error [z]
+    
+    Result.traverseSeq traverser sut =! Error [z; z]

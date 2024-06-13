@@ -33,10 +33,10 @@ let parseDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list
     
     seq {
         for file in Directory.GetFiles(folderPath, "*.txt") do
-            let f = file, Path.GetFileNameWithoutExtension file
-            
             result {
-                let! dataFileFormat = getDataFileFormat fileFormatLookup f
+                let! dataFileFormat =
+                    (file, Path.GetFileNameWithoutExtension file)
+                    |> getDataFileFormat fileFormatLookup 
                 return! parseDataFile dataFileFormat
             }
     }
