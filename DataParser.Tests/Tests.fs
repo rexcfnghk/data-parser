@@ -1,6 +1,7 @@
 module DataParser.Tests.Main
 
 open System
+open System.Collections.Generic
 open System.Globalization
 open System.Text.RegularExpressions
 open DataParser.Console.Core
@@ -215,3 +216,4 @@ let ``traverseSeq concat errors`` (x: int) (y: int) (z: Error list) =
     let traverser _ = Error [z]
     
     Result.traverseSeq traverser sut =! Error [z; z]
+    

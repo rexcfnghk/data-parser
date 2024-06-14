@@ -13,7 +13,6 @@ let readAllSpecFiles folderPath =
     Directory.GetFiles(folderPath, "*.csv")
     |> Array.map createFormatFileTuple
     |> Map.ofArray
-    |> Result.sequenceMap
     
 let parseDataFile dataFile =
     let dataFileLines = File.ReadLines dataFile.FilePath
@@ -23,20 +22,28 @@ let parseDataFile dataFile =
         return { DataFileName = dataFile.Name; JsonElements = parsedJsonObjects }
     }
     
-let parseDataFiles folderPath (fileFormatLookup: Map<FormatName, FormatLine list>) =
-    let getDataFileFormat (fileFormatLookup: Map<FormatName, FormatLine list>) (filePath, fileName) =           
-        result {
-            let! dataFileName as DataFileName (fileFormat, _) = parseDataFileName fileName
-            let! formatLines = tryLookupFormatLines fileFormatLookup fileFormat
-            return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
-        }
+let getDataFileFormat formatLines (filePath, fileName) =           
+    result {
+        let! dataFileName = parseDataFileName fileName
+        return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
+    }
     
+let getDataFiles folderPath =
     seq {
         for file in Directory.GetFiles(folderPath, "*.txt") do
-            result {
-                let! dataFileFormat =
-                    (file, Path.GetFileNameWithoutExtension file)
-                    |> getDataFileFormat fileFormatLookup 
-                return! parseDataFile dataFileFormat
-            }
+            (file, Path.GetFileNameWithoutExtension file)
+    }
+    
+let mapDataFilePath specs (filePath, fileName) =
+    let getSuccessfulKeys =
+        Map.filter (fun _ -> Result.isOk)
+        >> Map.keys
+    
+    result {
+        let! DataFileName (dataFileName, _) = parseDataFileName fileName
+        let! dataFileFormat =
+            match Map.tryFind dataFileName specs with
+            | Some formatLines -> Result.bind (flip getDataFileFormat (filePath, fileName)) formatLines
+            | None -> Error [FileFormatNotFound (getSuccessfulKeys specs, dataFileName)]
+        return! parseDataFile dataFileFormat
     }
