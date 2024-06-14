@@ -15,7 +15,7 @@ let okHandler = writeOutputFile outputPath
 
 let errorHandler = List.iter (eprintfn "Error occurred during processing: %+A")
 
-result {
+let program = result {
     printfn "Reading spec files..."
     let! specs = readAllSpecFiles specPath
     
@@ -24,7 +24,11 @@ result {
     
     printfn "Writing to output..."
     Seq.iter (Result.biTraverse_ okHandler errorHandler) dataFiles
-} |> ignore
+}
+
+match program with
+| Error e -> errorHandler e
+| Ok _ -> ()
 
 printfn "Processing complete. Press Enter to exit."
 ignore <| Console.ReadLine()
