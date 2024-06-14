@@ -35,9 +35,7 @@ let getDataFiles folderPath =
     }
     
 let mapDataFilePath specs (filePath, fileName) =
-    let getSuccessfulKeys =
-        Map.filter (fun _ -> Result.isOk)
-        >> Map.keys
+    let getSuccessfulKeys = Set.ofSeq << Map.keys << Map.filter (fun _ -> Result.isOk)
     
     result {
         let! DataFileName (dataFileName, _) = parseDataFileName fileName
