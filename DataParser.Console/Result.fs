@@ -30,6 +30,6 @@ module Result
         
     let sequenceSeq x = traverseSeq id x
 
-    let biTraverse_ f g = function
-        | Ok x -> f x : unit
-        | Error e -> g e : unit
+    let biFoldMap f g = function
+        | Ok x -> f x
+        | Error e -> g e

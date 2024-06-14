@@ -23,7 +23,7 @@ let program = result {
     let dataFiles = parseDataFiles dataPath specs
     
     printfn "Writing to output..."
-    Seq.iter (Result.biTraverse_ okHandler errorHandler) dataFiles
+    Seq.iter (Result.biFoldMap okHandler errorHandler) dataFiles
 }
 
 match program with
