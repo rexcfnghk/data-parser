@@ -28,7 +28,7 @@ let getDataFileFormat formatLines (filePath, fileName) =
         return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
     }
     
-let getDataFiles folderPath =
+let readDataFiles folderPath =
     seq {
         for file in Directory.GetFiles(folderPath, "*.txt") do
             (file, Path.GetFileNameWithoutExtension file)

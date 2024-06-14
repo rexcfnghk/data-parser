@@ -1,7 +1,5 @@
 ﻿module DataParser.Console.Core
 
-open System.Collections.Generic
-
 type FormatName = FormatName of string
 
 type Error =
