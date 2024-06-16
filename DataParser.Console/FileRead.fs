@@ -4,6 +4,7 @@ open DataParser.Console.Core
 open DataParser.Console.FormatFiles
 open DataParser.Console.DataFiles
 open System.IO
+open ResultMap
 
 let readAllSpecFiles folderPath =
     let createFormatFileTuple (filePath: string) =
@@ -34,14 +35,17 @@ let readDataFiles folderPath =
             (file, Path.GetFileNameWithoutExtension file)
     }
     
-let mapDataFilePath specs (filePath, fileName) =
-    let getSuccessfulKeys = Set.ofSeq << Map.keys << Map.filter (fun _ -> Result.isOk)
+let getDataFileFormats resultMap =
+    let folder (resultMap as ResultMap specs) state (filePath, fileName)  =
+        match parseDataFileName fileName with
+        | Error e -> Map.add filePath (Error e) state
+        | Ok (DataFileName (formatName, _)) ->
+            let r = 
+                match Map.tryFind formatName specs with
+                | Some formatLines ->
+                    Result.bind (flip getDataFileFormat (filePath, fileName)) formatLines
+                | None -> Error [FileFormatNotFound (ResultMap.keys resultMap, formatName)]
+            Map.add filePath r state
+            
+    Seq.fold (folder resultMap) Map.empty        
     
-    result {
-        let! DataFileName (dataFileName, _) = parseDataFileName fileName
-        let! dataFileFormat =
-            match Map.tryFind dataFileName specs with
-            | Some formatLines -> Result.bind (flip getDataFileFormat (filePath, fileName)) formatLines
-            | None -> Error [FileFormatNotFound (getSuccessfulKeys specs, dataFileName)]
-        return! parseDataFile dataFileFormat
-    }

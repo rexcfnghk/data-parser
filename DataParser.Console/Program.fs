@@ -1,6 +1,7 @@
 ﻿open System
 open DataParser.Console.FileRead
 open DataParser.Console.FileWrite
+open ResultMap
 
 [<Literal>] 
 let specFolderPath = "./specs"
@@ -11,21 +12,27 @@ let dataFolderPath = "./data"
 [<Literal>]
 let outputFolderPath = "./output"
 
-let okHandler = writeOutputFile outputFolderPath
+let okHandler _ = writeOutputFile outputFolderPath
 
-let errorHandler = List.iter (eprintfn "Error occurred during processing: %+A")
+let errorHandler key errors = eprintfn $"Error occurred during processing format: {key}. Error is : %+A{errors}"
 
 printfn "Reading spec files..."
-let specs = readAllSpecFiles specFolderPath
+let specs = ResultMap (readAllSpecFiles specFolderPath)
 
 printfn "Retrieving data files..."
 let dataFiles = readDataFiles dataFolderPath
 
 printfn "Parsing data files..."
-let dataFileParsedResults = Seq.map (mapDataFilePath specs) dataFiles
+let parsedDateFileFormats =
+    dataFiles
+    |> getDataFileFormats specs
+    |> ResultMap
+    
+let dataFileParsedResults =
+    ResultMap.bindResult parseDataFile parsedDateFileFormats
 
 printfn "Writing to output..."
-Seq.iter (Result.biFoldMap okHandler errorHandler) dataFileParsedResults
+ResultMap.biIter okHandler errorHandler dataFileParsedResults
 
 printfn "Processing complete. Press Enter to exit."
 ignore <| Console.ReadLine()
