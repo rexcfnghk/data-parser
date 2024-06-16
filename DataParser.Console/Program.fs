@@ -23,10 +23,7 @@ printfn "Retrieving data files..."
 let dataFiles = readDataFiles dataFolderPath
 
 printfn "Parsing data files..."
-let parsedDateFileFormats =
-    dataFiles
-    |> getDataFileFormats specs
-    |> ResultMap
+let parsedDateFileFormats = getDataFileFormats specs dataFiles
     
 let dataFileParsedResults =
     ResultMap.bindResult parseDataFile parsedDateFileFormats

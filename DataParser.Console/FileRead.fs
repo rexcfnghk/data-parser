@@ -36,16 +36,16 @@ let readDataFiles folderPath =
     }
     
 let getDataFileFormats resultMap =
-    let folder (resultMap as ResultMap specs) state (filePath, fileName)  =
+    let folder state (filePath, fileName)  =
         match parseDataFileName fileName with
         | Error e -> Map.add filePath (Error e) state
         | Ok (DataFileName (formatName, _)) ->
-            let r = 
-                match Map.tryFind formatName specs with
+            let dataFileFormatResult = 
+                match ResultMap.tryFind formatName resultMap with
                 | Some formatLines ->
                     Result.bind (flip getDataFileFormat (filePath, fileName)) formatLines
                 | None -> Error [FileFormatNotFound (ResultMap.keys resultMap, formatName)]
-            Map.add filePath r state
+            Map.add filePath dataFileFormatResult state
             
-    Seq.fold (folder resultMap) Map.empty        
+    ResultMap << Seq.fold folder Map.empty
     
