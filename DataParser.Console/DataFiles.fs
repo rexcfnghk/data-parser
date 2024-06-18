@@ -13,10 +13,12 @@ let [<Literal>] FalseByte = 48uy
 
 type DataFileName = DataFileName of fileFormat: FormatName * rawDate : string
 
+type FilePath = FilePath of string
+
 type JsonObject = JsonObject of Map<string, obj>
 
 type DataFileFormat =
-    { FilePath: string
+    { FilePath: FilePath
       Name: DataFileName
       FormatLines: FormatLine list }
 
@@ -28,11 +30,11 @@ let tryLookupFormatLines availableFormats given =
     | Some v -> Ok v
     | None -> Error <| [FileFormatNotFound (Set.ofSeq availableFormats.Keys, given)]
 
-let parseDataFileName s =
+let parseDataFileName (fileNameWithoutExtension as FileNameWithoutExtension s) =
     let regexMatch = dataFileNameRegex.Match s
     if regexMatch.Success
     then Ok <| DataFileName (FormatName regexMatch.Groups[1].Value, regexMatch.Groups[2].Value)
-    else Error [DataFileNameFormatError s]
+    else Error [DataFileNameFormatError fileNameWithoutExtension]
     
 let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : Result<JsonObject, Error list> =
     let parseDataType dataType (s: byte array) : Result<obj, Error list> =

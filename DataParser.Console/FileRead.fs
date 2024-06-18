@@ -16,26 +16,27 @@ let readAllSpecFiles folderPath =
     |> Map.ofArray
     
 let parseDataFile dataFile =
-    let dataFileLines = File.ReadLines dataFile.FilePath
+    let (FilePath filePath) = dataFile.FilePath
+    let dataFileLines = File.ReadLines filePath
     result {
         let! parsedJsonObjects =
             Result.traverseSeq (parseDataFileLine dataFile.FormatLines) dataFileLines
         return { DataFileName = dataFile.Name; JsonElements = parsedJsonObjects }
     }
     
-let getDataFileFormat formatLines (filePath, fileName) =           
-    result {
-        let! dataFileName = parseDataFileName fileName
-        return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
-    }
-    
 let readDataFiles folderPath =
     seq {
         for file in Directory.GetFiles(folderPath, "*.txt") do
-            (file, Path.GetFileNameWithoutExtension file)
+            (FilePath file, FileNameWithoutExtension <| Path.GetFileNameWithoutExtension file)
     }
     
 let getDataFileFormats resultMap =
+    let getDataFileFormat (filePath, fileName) formatLines =           
+        result {
+            let! dataFileName = parseDataFileName fileName
+            return { Name = dataFileName; FormatLines = formatLines; FilePath = filePath }
+        }
+    
     let folder state (filePath, fileName)  =
         match parseDataFileName fileName with
         | Error e -> Map.add filePath (Error e) state
@@ -43,9 +44,8 @@ let getDataFileFormats resultMap =
             let dataFileFormatResult = 
                 match ResultMap.tryFind formatName resultMap with
                 | Some formatLines ->
-                    Result.bind (flip getDataFileFormat (filePath, fileName)) formatLines
+                    Result.bind (getDataFileFormat (filePath, fileName)) formatLines
                 | None -> Error [FileFormatNotFound (ResultMap.keys resultMap, formatName)]
             Map.add filePath dataFileFormatResult state
             
     ResultMap << Seq.fold folder Map.empty
-    

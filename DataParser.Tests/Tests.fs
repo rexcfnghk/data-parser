@@ -29,7 +29,7 @@ let ``FormatLines are compared with structural equality`` (columnName: string) (
     FormatLine (columnName, width, dataType) =! FormatLine (columnName, width, dataType)
     
 [<Property>]
-let ``parseDataFileName should return error when file name does not conform to expected format`` (s: string) =
+let ``parseDataFileName should return error when file name does not conform to expected format`` (s: FileNameWithoutExtension) =
     let expected = Error [DataFileNameFormatError s]
     
     parseDataFileName s =! expected
@@ -37,7 +37,7 @@ let ``parseDataFileName should return error when file name does not conform to e
 [<Property>]
 let ``parseDataFileName should return ok with expected fields when file conform to expected format`` (s: int) (d: DateTime) =
     let rawDate = d.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
-    let fileName = $"{s}_{rawDate}"
+    let fileName = FileNameWithoutExtension $"{s}_{rawDate}"
     let FormatName = FormatName $"{s}"
     let expected = Ok <| DataFileName (FormatName, rawDate)
     
