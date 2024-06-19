@@ -12,9 +12,9 @@ let dataFolderPath = "./data"
 [<Literal>]
 let outputFolderPath = "./output"
 
-let okHandler _ = writeOutputFile outputFolderPath
+let okHandler f = writeOutputFile outputFolderPath
 
-let errorHandler key errors = eprintfn $"Error occurred during processing format: {key}. Error is : %+A{errors}"
+let errorHandler key errors = eprintfn $"Error occurred during processing data file: {key}. Error is : %+A{errors}"
 
 printfn "Reading spec files..."
 let specs = ResultMap (readAllSpecFiles specFolderPath)
