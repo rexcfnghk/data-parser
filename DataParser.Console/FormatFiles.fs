@@ -63,4 +63,3 @@ let parseFormatFile (file: string) =
             }
             
         with :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
-        

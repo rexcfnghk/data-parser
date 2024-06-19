@@ -14,4 +14,3 @@ type Error =
     | UnparsableFormatFile of fileContent: string
     
 let flip f x y = f y x
-    

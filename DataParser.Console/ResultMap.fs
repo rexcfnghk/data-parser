@@ -22,4 +22,3 @@ module ResultMap =
     let biIter f g (ResultMap x) =
         let go k = function Ok v -> f k v | Error e -> g k e
         Map.iter go x
-        

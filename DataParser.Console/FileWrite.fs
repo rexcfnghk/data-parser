@@ -19,4 +19,3 @@ let writeOutputFile folderPath (fileMap : DataFileParseResult) =
     let filePath = createOutputFilePath fileMap.DataFileName
     use fs = File.Open (filePath, FileMode.Create)
     Seq.iter (writeBytes fs << serializeElement) fileMap.JsonElements
-    
