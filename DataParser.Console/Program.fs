@@ -4,23 +4,24 @@ open DataParser.Console.FileWrite
 open ResultMap
 
 [<Literal>] 
-let specFolderPath = "./specs"
+let SpecFolderPath = "./specs"
 
 [<Literal>]
-let dataFolderPath = "./data"
+let DataFolderPath = "./data"
 
 [<Literal>]
-let outputFolderPath = "./output"
+let OutputFolderPath = "./output"
 
-let okHandler f = writeOutputFile outputFolderPath
+let okHandler _ = writeOutputFile OutputFolderPath
 
-let errorHandler key errors = eprintfn $"Error occurred during processing data file: {key}. Error is : %+A{errors}"
+let errorHandler key errors =
+    eprintfn $"Error occurred during processing data file: {key}. Error is : %+A{errors}"
 
 printfn "Reading spec files..."
-let specs = ResultMap (readAllSpecFiles specFolderPath)
+let specs = ResultMap (readAllSpecFiles SpecFolderPath)
 
 printfn "Retrieving data files..."
-let dataFiles = readDataFiles dataFolderPath
+let dataFiles = readDataFiles DataFolderPath
 
 printfn "Parsing data files..."
 let parsedDateFileFormats = getDataFileFormats specs dataFiles

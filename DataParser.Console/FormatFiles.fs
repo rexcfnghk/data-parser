@@ -21,11 +21,13 @@ let parseFormatLine (regex: Regex) line =
     let regexMatch = regex.Match line
     if regexMatch.Success
     then
-        let jsonDataType = parseJsonDataType line regexMatch.Groups["type"].Value
+        let regexGroups = regexMatch.Groups
+        let jsonDataType = parseJsonDataType line regexGroups["type"].Value
         match jsonDataType with
-        | Ok x -> Ok <| FormatLine (regexMatch.Groups["name"].Value, Int32.Parse(regexMatch.Groups["width"].Value), x)
+        | Ok jsonDataType ->
+            Ok <| FormatLine (regexGroups["name"].Value, Int32.Parse(regexGroups["width"].Value), jsonDataType)
         | Error e -> Error e
-    else Error [UnexpectedFormatLine line]
+    else Error [ UnexpectedFormatLine line ]
 
 let parseFormatLineHeader (line: string) =
     let headerLookup (dict : IDictionary<string, string>) v =

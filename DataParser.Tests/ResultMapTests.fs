@@ -11,8 +11,8 @@ let ``map obeys functor identity`` (x: int) (y: string) =
     ResultMap.map id sut =! sut
 
 [<Property>]
-let ``map obeys functor composition`` (x: string) (y: int) =
+let ``map obeys functor composition`` (x: string) (y: int) (z: int) (a: int) =
     let sut = ResultMap <| Map.ofList [ (x, Ok y) ]
-    let f, g = ((+) 1, (*) 2)
+    let f, g = ((+) z, (*) a)
     
     ResultMap.map (g << f) sut =! (ResultMap.map f sut |> ResultMap.map g) 
