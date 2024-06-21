@@ -4,6 +4,7 @@ type ResultMap<'TKey, 'TOkValue, 'TErrorValue when 'TKey : comparison> =
     ResultMap of Map<'TKey, Result<'TOkValue, 'TErrorValue list>>
     
 module ResultMap =
+
     let map f (ResultMap x) =
         x
         |> Map.map (fun _ -> Result.map f)

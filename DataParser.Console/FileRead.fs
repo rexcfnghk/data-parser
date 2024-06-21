@@ -14,6 +14,7 @@ let readAllSpecFiles folderPath =
     Directory.GetFiles(folderPath, "*.csv")
     |> Array.map createFormatFileTuple
     |> Map.ofArray
+    |> ResultMap
     
 let parseDataFile dataFile =
     let (FilePath filePath) = dataFile.FilePath

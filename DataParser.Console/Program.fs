@@ -15,10 +15,10 @@ let OutputFolderPath = "./output"
 let okHandler _ = writeOutputFile OutputFolderPath
 
 let errorHandler key errors =
-    eprintfn $"Error occurred during processing data file: {key}. Error is : %+A{errors}"
+    eprintfn $"Error occurred during processing data file: {key}. Error are : %+A{errors}"
 
 printfn "Reading spec files..."
-let specs = ResultMap (readAllSpecFiles SpecFolderPath)
+let specs = readAllSpecFiles SpecFolderPath
 
 printfn "Retrieving data files..."
 let dataFiles = readDataFiles DataFolderPath
