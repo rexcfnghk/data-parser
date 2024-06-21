@@ -29,7 +29,7 @@ let ``FormatLines are compared with structural equality`` (columnName: string) (
     
 [<Property>]
 let ``parseDataFileName should return error when file name does not conform to expected format`` (s: FileNameWithoutExtension) =
-    let expected = Error [DataFileNameFormatError s]
+    let expected = Error [ DataFileNameFormatError s ]
     
     parseDataFileName s =! expected
     
@@ -44,7 +44,7 @@ let ``parseDataFileName should return ok with expected fields when file conform 
     
 [<Property>]
 let ``parseFormatLine returns error when line does not conform to expected format`` (s: string) =
-    let expected = Error [UnexpectedFormatLine s]
+    let expected = Error [ UnexpectedFormatLine s ]
     let regex = Regex("^\n$")
     
     parseFormatLine regex s =! expected
@@ -96,7 +96,7 @@ let ``parseFormatFile returns expected FormatLines when there is two lines`` for
     
 [<Xunit.Fact>]
 let ``parseFormatFile returns expected Error when there are non-valid strings`` () =
-    let expected = Error [UnparsableFormatFile "F"]
+    let expected = Error [ UnparsableFormatFile "F" ]
     
     parseFormatFile "F" =! expected
     
@@ -174,7 +174,7 @@ let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an 
 let ``parseFormatFile should return error when file is an empty string`` () =
     let file = ""
     
-    parseFormatFile file =! Error [UnparsableFormatFile file]
+    parseFormatFile file =! Error [ UnparsableFormatFile file ]
     
 [<Property>]
 let ``tryLookupFormatLines returns expected error when map does not contain FormatName`` (map: Map<FormatName, FormatLine list>) formatName =
@@ -183,7 +183,7 @@ let ``tryLookupFormatLines returns expected error when map does not contain Form
     
     test <@ match tryLookupFormatLines sut formatName with
             | Ok _ -> false
-            | Error x -> x = [FileFormatNotFound (keys, formatName)] @>
+            | Error x -> x = [ FileFormatNotFound (keys, formatName) ] @>
     
 [<Property>]
 let ``tryLookupFormatLines returns expected Ok when map contains FormatName`` (map: Map<FormatName, FormatLine list>) formatName formatLines =
@@ -212,6 +212,6 @@ let ``Result obeys applicative homomorphism law`` (x: int) (xs: int list) =
 [<Property>]
 let ``traverseSeq concat errors`` (x: int) (y: int) (z: Error list) =
     let sut = seq { x; y }
-    let traverser _ = Error [z]
+    let traverser _ = Error [ z ]
     
-    Result.traverseSeq traverser sut =! Error [z; z]
+    Result.traverseSeq traverser sut =! Error [ z; z ]

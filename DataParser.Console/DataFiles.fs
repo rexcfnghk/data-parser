@@ -28,7 +28,7 @@ let dataFileNameRegex =
 let tryLookupFormatLines availableFormats given =
     match Map.tryFind given availableFormats with
     | Some v -> Ok v
-    | None -> Error <| [FileFormatNotFound (Set.ofSeq availableFormats.Keys, given)]
+    | None -> Error <| [ FileFormatNotFound (Set.ofSeq availableFormats.Keys, given) ]
 
 let parseDataFileName (fileNameWithoutExtension as FileNameWithoutExtension s) =
     let regexMatch = dataFileNameRegex.Match s
@@ -45,13 +45,13 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
             | [| FalseByte |] -> Ok false
             | _ ->
                 let errorValue = Encoding.UTF8.GetString s
-                Error [UnparsableValue errorValue] 
+                Error [ UnparsableValue errorValue ] 
         | JInt ->
             match Int32.TryParse (s, CultureInfo.InvariantCulture) with
             | true, i -> Ok i
             | false, _ ->
                 let errorValue = Encoding.UTF8.GetString s
-                Error [UnparsableValue errorValue] 
+                Error [ UnparsableValue errorValue ] 
         | JString ->
             let result = Encoding.UTF8.GetString s
             Ok <| result.Trim()
@@ -67,7 +67,7 @@ let parseDataFileLine (formatLines : FormatLine list) (dataFileLine : string) : 
                 Ok (stream, Map.add columnName result map)
             with :? EndOfStreamException ->
                 let line = Encoding.UTF8.GetString (stream.ToArray())
-                Error [DataFileLineLengthShorterThanSpec line]
+                Error [ DataFileLineLengthShorterThanSpec line ]
     
     let bytes : byte array = Encoding.UTF8.GetBytes dataFileLine
     use s = new MemoryStream(bytes)

@@ -45,7 +45,7 @@ let getDataFileFormats resultMap =
                 match ResultMap.tryFind formatName resultMap with
                 | Some formatLines ->
                     Result.bind (getDataFileFormat (filePath, fileName)) formatLines
-                | None -> Error [FileFormatNotFound (ResultMap.keys resultMap, formatName)]
+                | None -> Error [ FileFormatNotFound (ResultMap.keys resultMap, formatName) ]
             Map.add filePath dataFileFormatResult state
             
     ResultMap << Seq.fold folder Map.empty

@@ -15,7 +15,7 @@ let parseJsonDataType line = function
     | "TEXT" -> Ok JString
     | "BOOLEAN" -> Ok JBool
     | "INTEGER" -> Ok JInt
-    | _ -> Error [UnexpectedFormatLine line]
+    | _ -> Error [ UnexpectedFormatLine line ]
 
 let parseFormatLine (regex: Regex) line =
     let regexMatch = regex.Match line
@@ -33,7 +33,7 @@ let parseFormatLineHeader (line: string) =
     let headerLookup (dict : IDictionary<string, string>) v =
         match dict.TryGetValue v with
         | true, s -> Ok s
-        | false, _ -> Error [UnexpectedFormatHeader line]
+        | false, _ -> Error [ UnexpectedFormatHeader line ]
         
     let buildRegex (regexStrings: seq<string>) =
         let joined = String.Join(',', regexStrings)
@@ -49,7 +49,7 @@ let parseFormatFile (file: string) =
     let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
     
     if lines = Array.empty
-    then Error [UnparsableFormatFile file]
+    then Error [ UnparsableFormatFile file ]
     else
         try
             let formatFileLines =
@@ -58,10 +58,10 @@ let parseFormatFile (file: string) =
                 |> Array.toList
             
             if formatFileLines = []
-            then Error [UnparsableFormatFile file]
+            then Error [ UnparsableFormatFile file ]
             else result {
                 let! formatRegex = parseFormatLineHeader lines[0]
                 return! Result.traverseList (parseFormatLine formatRegex) formatFileLines
             }
             
-        with :? IndexOutOfRangeException -> Error [UnparsableFormatFile file]
+        with :? IndexOutOfRangeException -> Error [ UnparsableFormatFile file ]
