@@ -88,7 +88,7 @@ let ``parseFormatLineHeader returns expected error when line does not conforms t
 [<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\n")>]
 [<Xunit.InlineData("width,\"column name\",datatype\n10,name,TEXT\n")>]
 let ``parseFormatFile returns expected FormatLines when there is one line`` formatFile =
-    let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString) ]
+    let expected = Ok [ FormatLine ("name", 10, JString) ]
     
     parseFormatFile formatFile =! expected
     
@@ -96,7 +96,7 @@ let ``parseFormatFile returns expected FormatLines when there is one line`` form
 [<Xunit.InlineData("\"column name\",width,datatype\nname,10,TEXT\nvalid,1,BOOLEAN\n")>]
 [<Xunit.InlineData("width,\"column name\",datatype\n10,name,TEXT\n1,valid,BOOLEAN\n")>]
 let ``parseFormatFile returns expected FormatLines when there is two lines`` formatFile =
-    let expected = Ok [ FormatLine ("name", 10, JsonDataType.JString); FormatLine ("valid", 1, JsonDataType.JBool) ]
+    let expected = Ok [ FormatLine ("name", 10, JString); FormatLine ("valid", 1, JBool) ]
     
     parseFormatFile formatFile =! expected
     
@@ -110,9 +110,9 @@ let ``parseFormatFile returns expected Error when there are non-valid strings`` 
 let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns an expected map`` () =
     let dataFileLine = "Diabetes  1 1\n"
     let formatLines = [
-        FormatLine ("name", 10, JsonDataType.JString)
-        FormatLine ("valid", 1, JsonDataType.JBool)
-        FormatLine("count", 3, JsonDataType.JInt)
+        FormatLine ("name", 10, JString)
+        FormatLine ("valid", 1, JBool)
+        FormatLine("count", 3, JInt)
     ]
     let expected : Result<JsonObject, Error list> = 
         Map.ofList<string, obj> [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
@@ -125,9 +125,9 @@ let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns a
 let ``Given a format and a dataFileLine shorter than format width, parseDataFileLine returns an Error`` () =
     let dataFileLine = "Diabetes 1 1\n"
     let formatLines = [
-        FormatLine ("name", 10, JsonDataType.JString)
-        FormatLine ("valid", 1, JsonDataType.JBool)
-        FormatLine("count", 3, JsonDataType.JInt)
+        FormatLine ("name", 10, JString)
+        FormatLine ("valid", 1, JBool)
+        FormatLine("count", 3, JInt)
     ]
     let expected : Result<JsonObject, Error list> = Error [DataFileLineLengthShorterThanSpec dataFileLine]
     
@@ -137,9 +137,9 @@ let ``Given a format and a dataFileLine shorter than format width, parseDataFile
 let ``Given a format with sum of width longer than and a dataFileLine, parseDataFileLine returns an Error`` () =
     let dataFileLine = "Diabetes  1 1\n"
     let formatLines = [
-        FormatLine ("name", 10, JsonDataType.JString)
-        FormatLine ("valid", 1, JsonDataType.JBool)
-        FormatLine("count", 10, JsonDataType.JInt)
+        FormatLine ("name", 10, JString)
+        FormatLine ("valid", 1, JBool)
+        FormatLine("count", 10, JInt)
     ]
     let expected : Result<JsonObject, Error list> = Error [DataFileLineLengthShorterThanSpec dataFileLine]
     
@@ -149,9 +149,9 @@ let ``Given a format with sum of width longer than and a dataFileLine, parseData
 let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an expected map`` () =
     let dataFileLine = "Asthma    0-14\n"
     let formatLines = [
-        FormatLine ("name", 10, JsonDataType.JString)
-        FormatLine ("valid", 1, JsonDataType.JBool)
-        FormatLine("count", 3, JsonDataType.JInt)
+        FormatLine ("name", 10, JString)
+        FormatLine ("valid", 1, JBool)
+        FormatLine("count", 3, JInt)
     ]
     let expected : Result<JsonObject, Error list> = 
         Map.ofList<string, obj> [ ("name", "Asthma"); ("valid", false); ("count", -14) ]
@@ -164,9 +164,9 @@ let ``Given a format and a dataFileLine of Asthma, parseDataFileLine returns an 
 let ``Given a format and a dataFileLine of Stroke, parseDataFileLine returns an expected map`` () =
     let dataFileLine = "Stroke    1122\n"
     let formatLines = [
-        FormatLine ("name", 10, JsonDataType.JString)
-        FormatLine ("valid", 1, JsonDataType.JBool)
-        FormatLine("count", 3, JsonDataType.JInt)
+        FormatLine ("name", 10, JString)
+        FormatLine ("valid", 1, JBool)
+        FormatLine("count", 3, JInt)
     ]
 
     let expected : Result<JsonObject, Error list> = 
