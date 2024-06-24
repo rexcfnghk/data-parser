@@ -11,18 +11,19 @@ type FormatLine = FormatLine of columnName: string * width: int * dataType : Jso
 
 let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
 
-let parseJsonDataType line = function
+let parseJsonDataType rawDataType =
+    match rawDataType with
     | "TEXT" -> Ok JString
     | "BOOLEAN" -> Ok JBool
     | "INTEGER" -> Ok JInt
-    | _ -> Error [ UnexpectedFormatLine line ]
+    | _ -> Error [ UnexpectedJsonDataType rawDataType ]
 
 let parseFormatLine (regex: Regex) line =
     let regexMatch = regex.Match line
     if regexMatch.Success
     then
         let regexGroups = regexMatch.Groups
-        let jsonDataType = parseJsonDataType line regexGroups["type"].Value
+        let jsonDataType = parseJsonDataType regexGroups["type"].Value
         match jsonDataType with
         | Ok jsonDataType ->
             Ok <| FormatLine (regexGroups["name"].Value, Int32.Parse(regexGroups["width"].Value), jsonDataType)

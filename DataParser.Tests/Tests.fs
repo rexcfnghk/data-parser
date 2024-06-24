@@ -48,6 +48,12 @@ let ``parseFormatLine returns error when line does not conform to expected forma
     let regex = Regex("^\n$")
     
     parseFormatLine regex s =! expected
+
+[<Property>]
+let ``parseJsonDataType returns expected error when data type does not conform to expected format`` (s: string) =
+    let expected : Result<JsonDataType, Error list> = Error [ UnexpectedJsonDataType s ]
+
+    parseJsonDataType s =! expected
     
 [<Xunit.Theory>]
 [<Xunit.InlineData("name", 10, "TEXT")>]
@@ -55,7 +61,7 @@ let ``parseFormatLine returns error when line does not conform to expected forma
 [<Xunit.InlineData("count", 3, "INTEGER")>]
 let ``parseFormatLine returns expected FormatLine when line conforms to regex`` (columnName, width, dataType) =
     let line = $"{columnName},{width},{dataType}"
-    let jsonType = forceParseJsonType line dataType
+    let jsonType = forceParseJsonType dataType
     let expected = Ok <| FormatLine (columnName, width, jsonType)
     let regex = Regex("^(?<name>.+),(?<width>\d+),(?<type>.+)$")
     

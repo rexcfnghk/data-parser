@@ -8,6 +8,7 @@ type Error =
     | FileFormatNotFound of availableFormats: Set<FormatName> * givenFormat : FormatName
     | DataFileNameFormatError of fileName: FileNameWithoutExtension
     | UnexpectedFormatHeader of string
+    | UnexpectedJsonDataType of string
     | UnexpectedFormatLine of string
     | UnparsableValue of string
     | DataFileLineLengthShorterThanSpec of string
