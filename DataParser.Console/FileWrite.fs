@@ -3,7 +3,6 @@
 open System.Text.Json
 open System.IO
 open DataParser.Console.DataFiles
-open DataParser.Console.Core
 
 let writeOutputFile folderPath (fileMap : DataFileParseResult) =
     let serializeElement (JsonObject jsonObject) =
@@ -12,8 +11,8 @@ let writeOutputFile folderPath (fileMap : DataFileParseResult) =
         
     let writeBytes (stream: Stream) (bytes: byte array) = stream.Write bytes
     
-    let createOutputFilePath (DataFileName (FormatName format, rawDate)) =
-        folderPath + $"/{format}_{rawDate}.ndjson"
+    let createOutputFilePath  =
+       (+) folderPath << sprintf "/%s" << formatOutputFileName
         
     ignore <| Directory.CreateDirectory folderPath
     let filePath = createOutputFilePath fileMap.DataFileName

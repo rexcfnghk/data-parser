@@ -16,3 +16,9 @@ let ``map obeys functor composition`` (x: string) (y: int) (z: int) (a: int) =
     let f, g = ((+) z, (*) a)
     
     ResultMap.map (g << f) sut =! (ResultMap.map f sut |> ResultMap.map g) 
+
+[<Property>]
+let ``Addition returns expected ResultMap`` (x: Map<string, Result<int, string list>>) (y: Map<string, Result<int, string list>>) =
+    let expected = Map.fold (fun s k v -> Map.add k v s) x y |> ResultMap
+    
+    ResultMap x + ResultMap y =! expected

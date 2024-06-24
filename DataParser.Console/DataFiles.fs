@@ -22,6 +22,9 @@ type DataFileFormat =
       Name: DataFileName
       FormatLines: FormatLine list }
 
+let formatOutputFileName (DataFileName (FormatName fileFormat, rawDate)) =
+    $"{fileFormat}_{rawDate}.ndjson"
+
 let dataFileNameRegex =
     Regex(@"^(.+)_(\d\d\d\d-\d\d-\d\d)$", RegexOptions.Compiled ||| RegexOptions.Singleline ||| RegexOptions.CultureInvariant)
     
