@@ -4,31 +4,40 @@ open DataParser.Console.Core
 open DataParser.Console.FormatFiles
 open DataParser.Console.DataFiles
 open System.IO
+open System.Threading.Tasks
 open ResultMap
 
 let readAllSpecFiles folderPath =
     let createFormatFileTuple (filePath: string) =
-        FormatName (Path.GetFileNameWithoutExtension filePath),
-        parseFormatFile (File.ReadAllText filePath)
+        let mkTuple x y = x, y
+        let formatName = FormatName (Path.GetFileNameWithoutExtension filePath)
+
+        task {
+            let! text = File.ReadAllTextAsync filePath
+            let format = parseFormatFile text
+            return mkTuple formatName format
+        }
     
     Directory.GetFiles(folderPath, "*.csv")
     |> Array.map createFormatFileTuple
-    |> Map.ofArray
-    |> ResultMap
+    |> Task.WhenAll
+    |> Task.map (ResultMap << Map.ofArray)
     
 let parseDataFile dataFile =
     let (FilePath filePath) = dataFile.FilePath
-    let dataFileLines = File.ReadLines filePath
-    result {
-        let! parsedJsonObjects =
-            Result.traverseSeq (parseDataFileLine dataFile.FormatLines) dataFileLines
-        return { DataFileName = dataFile.Name; JsonElements = parsedJsonObjects }
+    task {
+        let! dataFileLines = File.ReadAllLinesAsync filePath
+        return result {
+            let! parsedJsonObjects =
+                Result.traverseSeq (parseDataFileLine dataFile.FormatLines) dataFileLines
+            return { DataFileName = dataFile.Name; JsonElements = parsedJsonObjects }
+        }
     }
     
-let readDataFiles folderPath =
+let getDataFileInfos folderPath =
     seq {
         for file in Directory.GetFiles(folderPath, "*.txt") do
-            (FilePath file, FileNameWithoutExtension <| Path.GetFileNameWithoutExtension file)
+            FilePath file, FileNameWithoutExtension <| Path.GetFileNameWithoutExtension file
     }
     
 let getDataFileFormats resultMap =
