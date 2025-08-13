@@ -6,7 +6,7 @@ The whole program is written in F#.
 
 ## Dependencies
 
-[.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks)
+[.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks)
 
 ## How to run
 

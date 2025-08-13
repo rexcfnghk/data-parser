@@ -74,9 +74,9 @@ let ``parseFormatLine returns expected FormatLine when line conforms to regex`` 
 let ``parseFormatLineHeader returns expected regex when line conforms to regex`` (header, expectedRegex) =
     let expected = Regex(expectedRegex)
 
-    match parseFormatLineHeader header with
-    | Ok r -> $"{r}" =! $"{expected}"
-    | _ -> failwith "Nope"
+    test <@ match parseFormatLineHeader header with
+            | Ok r -> $"{r}" = $"{expected}"
+            | _ -> false @>
     
 [<Xunit.Fact>]
 let ``parseFormatLineHeader returns expected error when line does not conforms to regex`` () =
@@ -112,7 +112,7 @@ let ``Given a format and a dataFileLine of Diabetes, parseDataFileLine returns a
     let formatLines = [
         FormatLine ("name", 10, JString)
         FormatLine ("valid", 1, JBool)
-        FormatLine("count", 3, JInt)
+        FormatLine ("count", 3, JInt)
     ]
     let expected : Result<JsonObject, Error list> = 
         Map.ofList<string, obj> [ ("name", "Diabetes"); ("valid", true); ("count", 1) ]
