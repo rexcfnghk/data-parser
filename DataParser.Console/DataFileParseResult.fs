@@ -3,5 +3,6 @@
 open DataParser.Console.DataFiles
 
 type DataFileParseResult =
-    { DataFileName : DataFileName
+    { DataFilePath : FilePath
+      DataFileName : DataFileName
       JsonElements : seq<JsonObject> }
