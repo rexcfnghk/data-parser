@@ -9,12 +9,29 @@ type ResultMap<'TKey, 'TOkValue, 'TErrorValue when 'TKey : comparison> =
         
 module ResultMap =
 
+    let empty = ResultMap Map.empty
+
     let unResultMap (ResultMap m) = m
 
     let map f =
         ResultMap
         << Map.map (fun _ -> Result.map f)
         << unResultMap
+
+    let traverseTask f (ResultMap m) = 
+        let folder acc k v = task {
+            let! acc' = acc
+            match v with
+            | Ok x -> 
+                let! t = f x
+                return Map.add k (Ok t) acc'
+            | Error e -> 
+                return Map.add k (Error e) acc'
+
+        }
+    
+        Map.fold folder (task { return Map.empty }) m
+        |> Task.map ResultMap
             
     let bindResult f =
         ResultMap

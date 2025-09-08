@@ -30,7 +30,10 @@ let parseDataFile dataFile =
         return result {
             let! parsedJsonObjects =
                 Result.traverseSeq (parseDataFileLine dataFile.FormatLines) dataFileLines
-            return { DataFileName = dataFile.Name; JsonElements = parsedJsonObjects }
+            return { 
+                DataFilePath = dataFile.FilePath
+                DataFileName = dataFile.Name
+                JsonElements = parsedJsonObjects }
         }
     }
     
