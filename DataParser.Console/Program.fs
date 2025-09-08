@@ -48,9 +48,6 @@ let t =
         printfn "Parsing data files..."
         let dataFileFormats = getDataFileFormats specs dataFileInfos
 
-        //let dataFileParsedResults = ResultMap.map parseDataFile dataFileFormats
-        //let! dataFileParsedResults = ResultMap.traverseTask parseDataFile dataFileFormats
-
         let! consolidatedResults = consolidateResults dataFileFormats
 
         printfn "Writing to output folder..."
@@ -60,4 +57,4 @@ let t =
         ignore <| Console.ReadLine()
     }
 
-t.GetAwaiter().GetResult() 
+t.GetAwaiter().GetResult()

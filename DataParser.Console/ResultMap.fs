@@ -1,7 +1,5 @@
 ﻿namespace ResultMap
 
-open System.Threading.Tasks
-
 type ResultMap<'TKey, 'TOkValue, 'TErrorValue when 'TKey : comparison> =
     | ResultMap of Map<'TKey, Result<'TOkValue, 'TErrorValue list>>
    

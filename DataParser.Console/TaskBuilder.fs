@@ -5,8 +5,6 @@ open System.Threading.Tasks
 
 type TaskBuilder() =
     member _.MergeSources (x: Task<'a>, y: Task<'b>) = task {
-        // Task.WhenAll returns a non-generic Task for the two-generic overload
-        // cast to Task to call the correct overload and avoid inference issues
         let! _ = Task.WhenAll(x :> Task, y :> Task)
         return x.Result, y.Result
     }
@@ -39,11 +37,5 @@ type TaskBuilder() =
     member _.ReturnFrom(x: Task<'T>) = x
     member _.ReturnFrom(x: Task) = x
     member _.Zero() = Task.FromResult ()
-
-    // member _.Return x = task { return x }
-
-    // member _.ReturnFrom x = x
-
-    // member _.Zero() = task { return () }
 
 let task = TaskBuilder()
