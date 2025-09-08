@@ -7,9 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="TaskBuilder.fs" />
+        <Compile Include="TaskOperators.fs" />
         <Compile Include="Task.fs" />
-        <Compile Include="Map.fs" />
         <Compile Include="Result.fs" />
         <Compile Include="ResultBuilder.fs" />
         <Compile Include="ResultMap.fs" />
