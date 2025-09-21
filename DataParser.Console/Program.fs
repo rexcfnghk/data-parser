@@ -1,4 +1,5 @@
 ﻿open System
+open System.Threading.Tasks
 open DataParser.Console.FileRead
 open DataParser.Console.FileWrite
 open ResultMap
@@ -12,26 +13,21 @@ let DataFolderPath = "./data"
 [<Literal>]
 let OutputFolderPath = "./output"
 
-let okHandler _ = writeOutputFile OutputFolderPath
+let okHandler _ = writeOutputFileAsync OutputFolderPath
 
 let errorHandler filePath errors =
     eprintfn $"Error occurred during processing data file: {filePath}. Errors are : %+A{errors}"
 
 let consolidateResults (ResultMap dataFileFormats) =
-    let folder acc k v =
-        match v with
+    let folder acc k = function
         | Ok dataFileFormat ->
             task {
                 let! parseResult = parseDataFile dataFileFormat
-                match parseResult with
-                | Ok result ->
-                    return! Task.liftA3 Map.add (Task.singleton k) (Task.singleton (Ok result)) acc
-                | Error e ->
-                    return! Task.liftA3 Map.add (Task.singleton k) (Task.singleton (Error e)) acc
+                return! Map.add <!> Task.singleton k <*> Task.singleton parseResult <*> acc
             }
         | Error e -> 
             task {
-                return! Task.liftA3 Map.add (Task.singleton k) (Task.singleton (Error e)) acc
+                return! Map.add <!> Task.singleton k <*> Task.singleton (Error e) <*> acc
             }
     
     Map.fold folder (Task.singleton Map.empty) dataFileFormats
@@ -50,8 +46,10 @@ let t =
 
         let! consolidatedResults = consolidateResults dataFileFormats
 
+        let result = ResultMap.either okHandler ((<<) Task.fromUnit << errorHandler) consolidatedResults
+
         printfn "Writing to output folder..."
-        ResultMap.biIter okHandler errorHandler consolidatedResults
+        do! Task.WhenAll(Map.values result)
 
         printfn "Processing complete. Press Enter to exit."
         ignore <| Console.ReadLine()
