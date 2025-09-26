@@ -18,8 +18,9 @@ let writeOutputFileAsync folderPath (fileMap : DataFileParseResult) =
         |> stream.WriteAsync
         |> _.AsTask()
     
-    let createOutputFilePath  =
-       (+) folderPath << sprintf "/%s" << formatOutputFileName
+    let createOutputFilePath dataFileName  =
+        let outputFileName = formatOutputFileName dataFileName
+        Path.Combine(folderPath, outputFileName)
         
     ignore <| Directory.CreateDirectory folderPath
     let filePath = createOutputFilePath fileMap.DataFileName
