@@ -26,4 +26,4 @@ let writeOutputFileAsync folderPath (fileMap : DataFileParseResult) =
     let filePath = createOutputFilePath fileMap.DataFileName
     use fs = File.Open (filePath, FileMode.Create)
     let tasks = Seq.map (writeBytesAsync fs << serializeElement) fileMap.JsonElements
-    Task.WhenAll tasks
+    Task.toUnit <| Task.WhenAll tasks

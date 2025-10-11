@@ -9,7 +9,10 @@ type JsonDataType = JString | JBool | JInt
 
 type FormatLine = FormatLine of columnName: string * width: int * dataType : JsonDataType
 
-let headerRegexLookup = dict [ ("\"column name\"", "(?<name>.+)"); ("width", "(?<width>\d+)"); ("datatype", "(?<type>.+)") ]
+let headerRegexLookup = dict [ 
+    "\"column name\"", "(?<name>.+)"
+    "width", "(?<width>\d+)"
+    "datatype", "(?<type>.+)" ]
 
 let parseJsonDataType rawDataType =
     match rawDataType with
@@ -47,7 +50,8 @@ let parseFormatLineHeader (line: string) =
     }
     
 let parseFormatFile (file: string) =
-    let lines = file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
+    let lines =
+        file.Split('\n', StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
     
     if lines = Array.empty
     then Error [ UnparsableFormatFile file ]

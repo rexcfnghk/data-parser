@@ -7,7 +7,7 @@ open System.IO
 open System.Threading.Tasks
 open ResultMap
 
-let readAllSpecFiles folderPath =
+let readAllSpecFilesAsync folderPath =
     let createFormatFileTuple (filePath: string) =
         let mkTuple x y = x, y
         let formatName = FormatName (Path.GetFileNameWithoutExtension filePath)

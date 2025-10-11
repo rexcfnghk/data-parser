@@ -18,7 +18,7 @@ let okHandler _ = writeOutputFileAsync OutputFolderPath
 let errorHandler filePath errors =
     eprintfn $"Error occurred during processing data file: {filePath}. Errors are : %+A{errors}"
 
-let consolidateResults (ResultMap dataFileFormats) =
+let consolidateResultsAsync (ResultMap dataFileFormats) =
     let folder acc k = function
         | Ok dataFileFormat ->
             task {
@@ -26,9 +26,7 @@ let consolidateResults (ResultMap dataFileFormats) =
                 return! Map.add <!> Task.singleton k <*> Task.singleton parseResult <*> acc
             }
         | Error e -> 
-            task {
-                return! Map.add <!> Task.singleton k <*> Task.singleton (Error e) <*> acc
-            }
+            Map.add <!> Task.singleton k <*> Task.singleton (Error e) <*> acc
     
     Map.fold folder (Task.singleton Map.empty) dataFileFormats
     |> Task.map ResultMap
@@ -37,19 +35,27 @@ printfn "Reading spec files..."
 
 let t =
     task {
-        let! specs = readAllSpecFiles SpecFolderPath
+        let! specs = readAllSpecFilesAsync SpecFolderPath
 
         let dataFileInfos = getDataFileInfos DataFolderPath
 
         printfn "Parsing data files..."
         let dataFileFormats = getDataFileFormats specs dataFileInfos
 
-        let! consolidatedResults = consolidateResults dataFileFormats
+        let! consolidatedResults = consolidateResultsAsync dataFileFormats
 
-        let result = ResultMap.either okHandler ((<<) Task.fromUnit << errorHandler) consolidatedResults
+        let result =
+            let errorHandler filePath =
+                Task.toUnit << Task.fromUnit << Task.singleton << errorHandler filePath
+            ResultMap.either okHandler errorHandler consolidatedResults
 
         printfn "Writing to output folder..."
-        do! Task.WhenAll(Map.values result)
+        let tasks =
+            result
+            |> Map.values
+            |> Seq.map Task.fromUnit
+            |> Seq.toArray
+        do! Task.WhenAll tasks
 
         printfn "Processing complete. Press Enter to exit."
         ignore <| Console.ReadLine()
