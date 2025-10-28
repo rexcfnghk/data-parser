@@ -18,6 +18,8 @@
         <Compile Include="DataFileParseResult.fs" />
         <Compile Include="FileRead.fs" />
         <Compile Include="FileWrite.fs" />
+        <Compile Include="FreeIO.fs" />
+        <Compile Include="FreeIOInterpreter.fs" />
         <Compile Include="Program.fs"/>
     </ItemGroup>
 
