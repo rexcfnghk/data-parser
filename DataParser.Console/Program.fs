@@ -1,7 +1,7 @@
-﻿open System
-open System.Threading.Tasks
+open System
+open DataParser.Console.FreeIOOps
+open DataParser.Console.FreeIOInterpreter
 open DataParser.Console.FileRead
-open DataParser.Console.FileWrite
 open ResultMap
 
 [<Literal>] 
@@ -13,52 +13,34 @@ let DataFolderPath = "./data"
 [<Literal>]
 let OutputFolderPath = "./output"
 
-let okHandler _ = writeOutputFileAsync OutputFolderPath
+let makeProgram specFolder dataFolder outputFolder =
+    io {
+        do! logInfo "Reading spec files..."
+        let! specs = readSpecs specFolder
 
-let errorHandler filePath errors =
-    eprintfn $"Error occurred during processing data file: {filePath}. Errors are : %+A{errors}"
+        let dataFileInfos = getDataFileInfos dataFolder
 
-let consolidateResultsAsync (ResultMap dataFileFormats) =
-    let folder acc k = function
-        | Ok dataFileFormat ->
-            task {
-                let! parseResult = parseDataFile dataFileFormat
-                return! Map.add <!> Task.singleton k <*> Task.singleton parseResult <*> acc
-            }
-        | Error e -> 
-            Map.add <!> Task.singleton k <*> Task.singleton (Error e) <*> acc
-    
-    Map.fold folder (Task.singleton Map.empty) dataFileFormats
-    |> Task.map ResultMap
-
-printfn "Reading spec files..."
-
-let t =
-    task {
-        let! specs = readAllSpecFilesAsync SpecFolderPath
-
-        let dataFileInfos = getDataFileInfos DataFolderPath
-
-        printfn "Parsing data files..."
+        do! logInfo "Parsing data files..."
         let dataFileFormats = getDataFileFormats specs dataFileInfos
 
-        let! consolidatedResults = consolidateResultsAsync dataFileFormats
+        // iterate over entries and parse/write
+        let (ResultMap m) = dataFileFormats
+        for KeyValue(filePath, entry) in m do
+            match entry with
+            | Ok dataFileFormat ->
+                let! parseResult = DataParser.Console.FreeIOOps.parseDataFile dataFileFormat
+                match parseResult with
+                | Ok parseRes -> do! writeOutput outputFolder parseRes
+                | Error errs -> do! logError (sprintf "Error occurred during processing data file: %A. Errors are : %A" filePath errs)
+            | Error errs ->
+                do! logError (sprintf "Error occurred during processing data file: %A. Errors are : %A" filePath errs)
 
-        let result =
-            let errorHandler filePath =
-                Task.toUnit << Task.fromUnit << Task.singleton << errorHandler filePath
-            ResultMap.either okHandler errorHandler consolidatedResults
-
-        printfn "Writing to output folder..."
-        let tasks =
-            result
-            |> Map.values
-            |> Seq.map Task.fromUnit
-            |> Seq.toArray
-        do! Task.WhenAll tasks
-
-        printfn "Processing complete. Press Enter to exit."
-        ignore <| Console.ReadLine()
+        do! logInfo "Processing complete."
     }
 
-t.GetAwaiter().GetResult()
+// run the program (when executed as an app)
+interpret (makeProgram SpecFolderPath DataFolderPath OutputFolderPath)
+|> Task.runSynchronously
+
+printfn "Processing complete. Press Enter to exit."
+ignore <| Console.ReadLine()

@@ -3,6 +3,8 @@ module Task
 
 open System.Threading.Tasks
 
+let runSynchronously (task: Task) = task.GetAwaiter().GetResult()
+
 let map = (<!>)
 
 let toUnit (x: Task) = task { do! x }

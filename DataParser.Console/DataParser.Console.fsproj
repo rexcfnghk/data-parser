@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
@@ -18,6 +18,9 @@
         <Compile Include="DataFileParseResult.fs" />
         <Compile Include="FileRead.fs" />
         <Compile Include="FileWrite.fs" />
+        <Compile Include="FreeIO.fs" />
+        <Compile Include="FreeIOInterpreter.fs" />
+        <Compile Include="PureIOInterpreter.fs" />
         <Compile Include="Program.fs"/>
     </ItemGroup>
 
